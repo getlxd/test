@@ -3,469 +3,771 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>你最像哪个历史人物？| HISTORIA</title>
+<title>探格 · 历史人格探索</title>
 <style>
-  :root{
-    --bg: #f2ecdd;
-    --bg-deep: #e9e0c8;
-    --paper: #fbf8f0;
-    --ink: #2b241c;
-    --ink-soft: #6f6656;
-    --line: #ddd2b3;
-    --accent: #a8362a;
-    --accent-soft: #c9564a;
-    --accent-pale: #f4e2dd;
-    --btn-dark: #26221c;
-    --radius: 18px;
-    font-family: "Songti SC","STSong","Noto Serif SC",Georgia,"Times New Roman",serif;
-  }
-  *{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
-  html,body{ margin:0; padding:0; background:var(--bg-deep); color:var(--ink); }
-  body{
-    min-height:100vh;
-    display:flex;
-    justify-content:center;
-    background:
-      radial-gradient(circle at 20% 0%, #f6efdd 0%, transparent 55%),
-      radial-gradient(circle at 100% 100%, #e6dcc0 0%, transparent 50%),
-      var(--bg-deep);
-  }
-  .app{
-    width:100%;
-    max-width:460px;
-    min-height:100vh;
-    background:var(--bg);
-    position:relative;
-    display:flex;
-    flex-direction:column;
-    box-shadow:0 0 60px rgba(0,0,0,0.18);
-  }
-  .screen{ display:none; flex:1; flex-direction:column; padding:36px 26px 30px; animation:fadeIn .35s ease; }
-  .screen.active{ display:flex; }
-  @keyframes fadeIn{ from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);} }
+/* =========================================================================
+   令牌系统 Design Tokens
+   ========================================================================= */
+:root{
+  --paper: #ece0c4;        /* 宣纸底色 */
+  --paper-deep: #d9c89a;   /* 宣纸深色/边角 */
+  --paper-line: #c4ac78;   /* 纤维纹线 */
+  --ink: #221d17;          /* 主墨色 */
+  --ink-soft: #5c5240;     /* 次墨色 */
+  --wash: #7c8a92;         /* 水墨青灰 */
+  --wash-light: #aab7bc;
+  --seal: #a6362a;         /* 朱砂印色 */
+  --seal-deep: #7d281f;
+  --gold: #a9843f;         /* 泥金 */
+  --gold-light:#c7a35c;
+  --bamboo:#697c4d;        /* 竹青 */
+  --radius-lg: 4px;
+}
+*{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+html{ scroll-behavior:smooth; }
+body{
+  margin:0;
+  font-family:"STKaiti","Kaiti SC","KaiTi","Songti SC","STSong",serif;
+  color:var(--ink);
+  background: var(--paper-deep);
+}
 
-  /* ---------- 通用元素 ---------- */
-  .eyebrow{
-    font-size:11px; letter-spacing:.22em; text-transform:uppercase;
-    color:var(--ink-soft); text-align:center; margin-bottom:6px;
-  }
-  .brand{
-    text-align:center; font-size:40px; letter-spacing:.14em; font-weight:600;
-    margin:2px 0 4px; color:var(--ink);
-  }
-  .brand-cn{ text-align:center; font-size:20px; letter-spacing:.3em; color:var(--ink); margin-bottom:22px; }
-  .divider{ height:1px; background:var(--line); margin:22px 0; border:none; }
-  .pill{
-    display:inline-block; padding:6px 14px; border:1px solid var(--line);
-    border-radius:999px; font-size:12px; color:var(--ink-soft); background:var(--paper);
-  }
-  .btn{
-    display:block; width:100%; text-align:center; padding:16px 18px;
-    border-radius:14px; font-size:15px; letter-spacing:.08em; cursor:pointer;
-    border:1px solid transparent; font-family:inherit; transition:transform .12s ease, opacity .12s ease;
-  }
-  .btn:active{ transform:scale(.98); }
-  .btn-dark{ background:var(--btn-dark); color:#f6f1e4; }
-  .btn-outline{ background:transparent; color:var(--ink); border-color:var(--line); }
-  .btn-accent{ background:var(--accent); color:#fdf6ee; }
-  .btn-ghost{ background:transparent; color:var(--ink-soft); border:none; text-decoration:underline; padding:10px; }
+/* 宣纸纹理 + 山河底纹（纯 SVG/CSS，无外部资源） */
+.paper-bg{
+  position:fixed; inset:0; z-index:-2;
+  background:
+    radial-gradient(ellipse at 15% 10%, rgba(255,252,240,.55), transparent 55%),
+    radial-gradient(ellipse at 85% 90%, rgba(120,100,60,.18), transparent 55%),
+    var(--paper);
+}
+.paper-bg::after{
+  content:""; position:absolute; inset:0; opacity:.5; mix-blend-mode:multiply;
+  background-image:
+    repeating-linear-gradient(95deg, rgba(120,100,60,.05) 0px, transparent 2px, transparent 6px),
+    repeating-linear-gradient(5deg, rgba(120,100,60,.04) 0px, transparent 1px, transparent 5px);
+}
+.mountains{ position:fixed; left:0; right:0; bottom:0; z-index:-1; pointer-events:none; opacity:.9; }
 
-  /* ---------- 封面 ---------- */
-  #screen-cover .intro-copy{ text-align:center; color:var(--ink-soft); font-size:14.5px; line-height:1.9; margin:14px 0 30px; }
-  #screen-cover .dots{ text-align:center; color:var(--ink-soft); letter-spacing:.5em; margin-bottom:28px; }
-  .note-card{
-    margin-top:26px; background:var(--paper); border:1px solid var(--line); border-radius:var(--radius);
-    padding:20px 20px 6px;
-  }
-  .note-card .note-eyebrow{ font-size:10.5px; letter-spacing:.18em; color:var(--accent-soft); text-transform:uppercase; margin-bottom:8px; }
-  .note-card h3{ margin:0 0 10px; font-size:17px; }
-  .note-card p{ font-size:13.5px; line-height:1.85; color:#4a4438; margin:0 0 14px; }
-  .note-item{ display:flex; gap:10px; font-size:13px; line-height:1.8; color:#4a4438; margin-bottom:14px; }
-  .note-item .n{ color:var(--accent-soft); font-weight:600; flex-shrink:0; }
+/* =========================================================================
+   通用版式
+   ========================================================================= */
+.stage{ min-height:100vh; display:none; flex-direction:column; align-items:center; padding:0 0 60px; }
+.stage.active{ display:flex; }
+.col{ width:100%; max-width:640px; padding:0 24px; margin:0 auto; }
 
-  /* ---------- 授权码弹窗 ---------- */
-  #auth-overlay{
-    position:absolute; inset:0; background:rgba(20,17,12,.55);
-    display:none; align-items:flex-end; justify-content:center; z-index:50;
-    backdrop-filter:blur(1px);
-  }
-  #auth-overlay.active{ display:flex; }
-  .auth-sheet{
-    width:100%; max-width:460px; background:#fff; border-radius:24px 24px 0 0;
-    padding:28px 24px 30px; animation:slideUp .3s ease;
-  }
-  @keyframes slideUp{ from{transform:translateY(30px); opacity:0;} to{transform:translateY(0); opacity:1;} }
-  .auth-title{ display:flex; align-items:center; gap:8px; font-size:19px; font-weight:600; margin-bottom:16px; }
-  .auth-title .icon{ color:var(--accent-soft); font-size:20px; }
-  .auth-input{
-    width:100%; padding:15px 16px; border-radius:12px; border:1.5px solid var(--accent-pale);
-    background:#fffaf7; font-size:15px; margin-bottom:16px; font-family:inherit; letter-spacing:.05em;
-  }
-  .auth-input:focus{ outline:none; border-color:var(--accent-soft); }
-  .auth-hint-box{
-    background:#fbeeeb; border-radius:14px; padding:16px; margin-bottom:20px;
-  }
-  .auth-hint-box .lock-line{ display:flex; align-items:center; gap:8px; font-size:14px; font-weight:600; margin-bottom:6px; }
-  .auth-hint-box p{ font-size:12.5px; color:#7a6f61; margin:0 0 12px; line-height:1.6; }
-  .shop-link{
-    display:flex; align-items:center; justify-content:center; gap:8px;
-    background:var(--accent); color:#fff; padding:13px; border-radius:10px;
-    font-size:14px; text-decoration:none;
-  }
-  .auth-row{ display:flex; gap:10px; }
-  .auth-row .btn{ flex:1; padding:14px; font-size:14px; }
-  .auth-error{ color:var(--accent); font-size:12.5px; margin:-8px 0 14px; display:none; }
+.seal-btn{
+  font-family:inherit; cursor:pointer; border:none; letter-spacing:.12em;
+  background:var(--seal); color:#f6ead9; padding:16px 30px; font-size:16px;
+  border-radius:3px; position:relative;
+  box-shadow: 0 2px 0 var(--seal-deep), 0 8px 18px rgba(90,30,20,.25);
+  transition: transform .12s ease;
+}
+.seal-btn:active{ transform:translateY(2px); box-shadow:0 0 0 var(--seal-deep), 0 4px 10px rgba(90,30,20,.2); }
+.seal-btn.ghost{
+  background:transparent; color:var(--ink-soft); border:1px solid var(--paper-line);
+  box-shadow:none; padding:13px 26px; font-size:14px;
+}
+.seal-btn.ghost:active{ transform:none; background:rgba(0,0,0,.03); }
+button:focus-visible, .q-strip:focus-visible, .link-btn:focus-visible{
+  outline:2px solid var(--gold); outline-offset:2px;
+}
+.link-btn{ background:none; border:none; font-family:inherit; color:var(--ink-soft); font-size:13px; cursor:pointer; letter-spacing:.05em; text-decoration:underline; text-underline-offset:3px; }
 
-  /* ---------- 题目页 ---------- */
-  .q-progress-wrap{ margin-bottom:26px; }
-  .q-progress-top{ display:flex; justify-content:space-between; font-size:11px; letter-spacing:.15em; color:var(--ink-soft); text-transform:uppercase; margin-bottom:8px; }
-  .q-progress-bar{ height:3px; background:var(--line); border-radius:2px; overflow:hidden; }
-  .q-progress-fill{ height:100%; background:var(--accent); transition:width .35s ease; }
-  .q-text{ font-size:21px; line-height:1.6; font-weight:600; margin-bottom:24px; }
-  .q-options{ display:flex; flex-direction:column; gap:12px; }
-  .q-option{
-    display:flex; gap:12px; align-items:flex-start; text-align:left;
-    background:var(--paper); border:1.5px solid var(--line); border-radius:14px;
-    padding:16px 16px; font-size:14.5px; line-height:1.6; cursor:pointer;
-    font-family:inherit; color:var(--ink); transition:border-color .15s, background .15s;
-  }
-  .q-option:active{ background:var(--accent-pale); }
-  .q-option .opt-label{ color:var(--accent-soft); font-weight:700; flex-shrink:0; }
-  .q-foot{ margin-top:auto; padding-top:26px; display:flex; align-items:center; justify-content:space-between; }
-  .q-foot button{ background:none; border:none; font-family:inherit; font-size:13px; color:var(--ink-soft); cursor:pointer; }
-  .q-foot button:disabled{ opacity:.35; }
-  .q-hint{ text-align:center; font-size:11.5px; color:var(--ink-soft); margin-top:14px; letter-spacing:.03em; }
+.divider-brush{ width:64px; height:6px; margin:18px auto; opacity:.55; }
 
-  /* ---------- 结果页 ---------- */
-  #screen-result{ padding-top:26px; }
-  .res-eyebrow{ display:flex; justify-content:space-between; font-size:11px; letter-spacing:.15em; color:var(--ink-soft); text-transform:uppercase; margin-bottom:22px; }
-  .res-sub{ text-align:center; font-size:12.5px; color:var(--ink-soft); margin-bottom:6px; }
-  .res-name{ text-align:center; font-size:34px; font-weight:700; margin:2px 0 6px; }
-  .res-tag{ text-align:center; font-size:13px; color:var(--ink-soft); margin-bottom:16px; }
-  .res-quote{
-    text-align:center; font-size:14.5px; font-style:italic; color:#544c3d;
-    line-height:1.8; padding:0 6px; margin-bottom:18px;
-  }
-  .res-keywords{ display:flex; justify-content:center; flex-wrap:wrap; gap:8px; margin-bottom:26px; }
-  .res-section{ margin-bottom:26px; }
-  .res-section h4{ font-size:14.5px; letter-spacing:.05em; margin:0 0 12px; display:flex; align-items:center; gap:8px; }
-  .res-section h4 .mark{ color:var(--accent-soft); }
-  .res-core{ font-size:14px; line-height:1.9; color:#4a4438; }
-  .res-list{ display:flex; flex-direction:column; gap:14px; }
-  .res-list .item .h{ font-size:14px; font-weight:700; margin-bottom:4px; }
-  .res-list .item .d{ font-size:13px; color:#5b5445; line-height:1.75; }
-  .dim-row{ display:flex; align-items:center; gap:10px; margin-bottom:10px; }
-  .dim-row .dim-label{ width:66px; font-size:12px; color:var(--ink-soft); flex-shrink:0; }
-  .dim-row .dim-track{ flex:1; height:7px; background:var(--line); border-radius:4px; overflow:hidden; }
-  .dim-row .dim-fill{ height:100%; background:linear-gradient(90deg,var(--accent-soft),var(--accent)); }
-  .dim-row .dim-pct{ width:38px; text-align:right; font-size:12px; color:var(--ink-soft); }
-  .res-second-box{
-    background:var(--paper); border:1px solid var(--line); border-radius:var(--radius); padding:18px;
-  }
-  .res-second-box .combo{ font-size:16px; font-weight:700; margin-bottom:8px; }
-  .res-second-box p{ font-size:13px; color:#5b5445; line-height:1.8; margin:0; }
-  .res-rarity{
-    background:#fbeeeb; border-radius:var(--radius); padding:16px 18px; font-size:12.5px;
-    color:#7a4238; line-height:1.8; margin-bottom:26px;
-  }
-  .res-tags{ display:flex; flex-wrap:wrap; gap:8px; }
-  .res-cta{ display:flex; flex-direction:column; gap:10px; margin-top:10px; }
-  .res-share-hint{ text-align:center; font-size:11.5px; color:var(--ink-soft); margin-top:12px; }
+@media (prefers-reduced-motion: reduce){
+  *{ animation-duration:0.001ms !important; animation-iteration-count:1 !important; transition-duration:0.001ms !important; }
+}
 
-  /* ---------- 历史记录弹窗 ---------- */
-  #history-overlay{
-    position:absolute; inset:0; background:rgba(20,17,12,.55); display:none;
-    align-items:center; justify-content:center; z-index:60; padding:26px;
-  }
-  #history-overlay.active{ display:flex; }
-  .history-sheet{ width:100%; background:#fff; border-radius:20px; padding:22px; max-height:70vh; overflow-y:auto; }
-  .history-sheet h3{ margin:0 0 14px; font-size:17px; }
-  .history-item{ display:flex; justify-content:space-between; padding:12px 0; border-bottom:1px solid var(--line); font-size:13.5px; }
-  .history-empty{ font-size:13px; color:var(--ink-soft); text-align:center; padding:20px 0; }
+/* =========================================================================
+   一、卷轴入口 · 首页
+   ========================================================================= */
+#stage-cover{ position:relative; justify-content:flex-start; padding-top:6vh; overflow:hidden; }
+.scroll-wrap{ width:100%; max-width:520px; margin:0 auto; padding:0 22px; position:relative; }
+.scroll-rod{
+  height:16px; border-radius:8px; margin:0 -6px;
+  background:linear-gradient(180deg,#e7cf8f,var(--gold) 45%,#7a5d24);
+  box-shadow:0 3px 8px rgba(0,0,0,.25);
+  position:relative;
+}
+.scroll-rod::before,.scroll-rod::after{
+  content:""; position:absolute; top:-3px; width:22px; height:22px; border-radius:50%;
+  background:radial-gradient(circle at 35% 30%, #f3dfa0, var(--gold) 60%, #6e5220);
+  box-shadow:0 2px 5px rgba(0,0,0,.3);
+}
+.scroll-rod::before{ left:-11px; } .scroll-rod::after{ right:-11px; }
+
+.scroll-panel{
+  background:
+    radial-gradient(ellipse at 20% 0%, rgba(255,252,238,.6), transparent 60%),
+    var(--paper);
+  border-left:1px solid var(--paper-line); border-right:1px solid var(--paper-line);
+  padding:44px 30px 40px;
+  transform-origin:top center;
+  animation: unroll 1.1s cubic-bezier(.65,0,.35,1) both;
+}
+@keyframes unroll{
+  0%{ transform:scaleY(0.02); opacity:0; }
+  55%{ opacity:1; }
+  100%{ transform:scaleY(1); opacity:1; }
+}
+.scroll-rod.top{ animation:rodOpenUp 1.1s cubic-bezier(.65,0,.35,1) both; }
+.scroll-rod.bottom{ animation:rodOpenDown 1.1s cubic-bezier(.65,0,.35,1) both; }
+@keyframes rodOpenUp{ 0%{ transform:translateY(48px);} 100%{ transform:translateY(0);} }
+@keyframes rodOpenDown{ 0%{ transform:translateY(-48px);} 100%{ transform:translateY(0);} }
+
+.vertical-title{
+  writing-mode:vertical-rl; text-orientation:upright; letter-spacing:.32em;
+  font-size:28px; font-weight:700; margin:0 auto 4px; text-align:center; color:var(--ink);
+  height:230px; display:flex; align-items:center; justify-content:center; white-space:nowrap;
+}
+.cover-eyebrow{ text-align:center; font-size:12px; letter-spacing:.4em; color:var(--seal); margin-bottom:2px; }
+.cover-copy{ text-align:center; font-size:14px; line-height:2; color:var(--ink-soft); margin:18px auto 26px; max-width:380px; }
+.cover-copy b{ color:var(--ink); font-weight:600; }
+.cover-cta{ display:flex; flex-direction:column; align-items:center; gap:14px; margin-top:8px; }
+
+.strip-note{
+  display:flex; gap:14px; margin-top:52px; padding:0 6px; justify-content:center; flex-wrap:wrap;
+}
+.strip{
+  writing-mode:vertical-rl; text-orientation:upright; background:var(--paper);
+  border:1px solid var(--paper-line); border-radius:2px; padding:16px 9px;
+  font-size:12.5px; line-height:2.1; color:var(--ink-soft); letter-spacing:.15em;
+  box-shadow:0 2px 6px rgba(0,0,0,.08);
+  min-height:190px;
+}
+.strip .num{ color:var(--seal); font-weight:700; }
+
+/* =========================================================================
+   二、探索卷 · 题目页
+   ========================================================================= */
+#stage-quiz{ padding-top:34px; }
+.quiz-head{ display:flex; align-items:baseline; justify-content:space-between; margin-bottom:6px; }
+.quiz-head .chapter{ font-size:15px; letter-spacing:.15em; color:var(--seal); font-weight:700; }
+.quiz-head .of{ font-size:12px; color:var(--ink-soft); letter-spacing:.1em; }
+
+.dot-track{ display:flex; gap:5px; flex-wrap:wrap; margin:14px 0 26px; }
+.dot{ width:9px; height:9px; border-radius:50%; background:var(--paper-line); flex-shrink:0; transition:background .25s, transform .25s; }
+.dot.filled{ background:var(--seal); }
+.dot.current{ background:var(--seal); transform:scale(1.5); box-shadow:0 0 0 3px rgba(166,54,42,.2); }
+
+.q-bg-box{
+  display:flex; gap:10px; align-items:flex-start; background:rgba(124,138,146,.09);
+  border-left:3px solid var(--wash); padding:12px 14px; margin-bottom:20px; border-radius:2px;
+}
+.q-bg-box .mark{ color:var(--wash); font-size:16px; flex-shrink:0; }
+.q-bg-box p{ margin:0; font-size:12.5px; line-height:1.85; color:var(--ink-soft); font-style:italic; }
+
+.q-text{ font-size:20px; line-height:1.75; font-weight:700; margin-bottom:22px; }
+
+.q-options{ display:flex; flex-direction:column; gap:11px; }
+.q-strip{
+  display:flex; gap:13px; align-items:flex-start; text-align:left; width:100%;
+  background:var(--paper); border:1px solid var(--paper-line); border-left:4px solid var(--gold);
+  border-radius:2px; padding:15px 15px; font-size:14.5px; line-height:1.7; cursor:pointer;
+  font-family:inherit; color:var(--ink); transition:border-color .15s, background .15s, transform .1s;
+}
+.q-strip:active{ background:#f4ead0; transform:translateX(2px); }
+.q-strip .opt-mark{ color:var(--seal); font-weight:700; flex-shrink:0; }
+
+.proverb-box{
+  margin-top:26px; text-align:center; padding:16px 10px 4px; border-top:1px dashed var(--paper-line);
+}
+.proverb-box .pv{ font-size:13px; color:var(--ink-soft); font-style:italic; letter-spacing:.03em; }
+.proverb-box .pv-label{ font-size:10.5px; color:var(--wash); letter-spacing:.25em; margin-bottom:6px; display:block; }
+
+.q-foot{ display:flex; align-items:center; justify-content:space-between; margin-top:30px; }
+
+/* =========================================================================
+   三、历史人格档案 · 结果页
+   ========================================================================= */
+#stage-result{ padding-top:32px; }
+.dossier-head{ text-align:center; margin-bottom:8px; }
+.dossier-eyebrow{ font-size:12px; letter-spacing:.35em; color:var(--seal); margin-bottom:4px; }
+.dossier-no{ font-size:11px; color:var(--ink-soft); letter-spacing:.1em; }
+
+.name-seal-row{ display:flex; align-items:center; justify-content:center; gap:16px; margin:20px 0 6px; }
+.name-seal-row .name{ font-size:36px; font-weight:700; }
+.ink-seal{
+  width:56px; height:56px; flex-shrink:0; background:var(--seal); color:#f8e9d8;
+  display:flex; align-items:center; justify-content:center; border-radius:3px;
+  font-size:15px; font-weight:700; letter-spacing:.06em; line-height:1.25; text-align:center;
+  transform:rotate(-4deg); box-shadow:0 3px 8px rgba(90,30,20,.3);
+  border:1.5px solid #c9a793; writing-mode:vertical-rl; text-orientation:upright;
+}
+.res-tagline{ text-align:center; font-size:13px; color:var(--ink-soft); margin-bottom:18px; letter-spacing:.05em; }
+.res-quote{ text-align:center; font-size:14.5px; font-style:italic; color:#4a4234; line-height:1.9; padding:0 10px; margin-bottom:20px; }
+
+.stamp-row{ display:flex; justify-content:center; flex-wrap:wrap; gap:10px; margin-bottom:30px; }
+.stamp{
+  background:var(--seal); color:#f8e9d8; font-size:12px; font-weight:700; letter-spacing:.05em;
+  padding:6px 12px; border-radius:2px; box-shadow:0 2px 5px rgba(90,30,20,.25);
+  border:1px solid #c9a793;
+}
+.stamp:nth-child(2n){ transform:rotate(-2deg); } .stamp:nth-child(2n+1){ transform:rotate(2deg); }
+
+.section{ margin-bottom:32px; }
+.section-h{
+  display:flex; align-items:center; gap:10px; font-size:16px; font-weight:700; margin:0 0 14px;
+}
+.section-h .glyph{ color:var(--seal); font-size:15px; }
+.section-h .rule{ flex:1; height:1px; background:var(--paper-line); }
+
+.res-core{ font-size:14.5px; line-height:2; color:#453f31; }
+
+.bamboo-list{ display:flex; flex-direction:column; gap:16px; }
+.bamboo-item{ display:flex; gap:12px; }
+.bamboo-item .cn{ font-size:14px; color:var(--seal); font-weight:700; flex-shrink:0; width:20px; }
+.bamboo-item .body .h{ font-size:14.5px; font-weight:700; margin-bottom:3px; }
+.bamboo-item .body .d{ font-size:13px; color:#5b5445; line-height:1.8; }
+
+.radar-wrap{ display:flex; flex-direction:column; align-items:center; }
+.radar-legend{ display:flex; gap:18px; font-size:11.5px; color:var(--ink-soft); margin-top:6px; }
+.radar-legend span{ display:flex; align-items:center; gap:5px; }
+.leg-dot{ width:9px; height:9px; border-radius:50%; display:inline-block; }
+.leg-dot.you{ background:var(--seal); }
+.leg-dot.ref{ background:var(--wash); }
+
+.second-box, .similar-box{
+  background:rgba(169,132,63,.08); border:1px solid var(--paper-line); border-radius:2px; padding:18px;
+}
+.second-box .combo{ font-size:17px; font-weight:700; margin-bottom:8px; }
+.second-box p{ font-size:13px; color:#5b5445; line-height:1.85; margin:0; }
+
+.similar-list{ display:flex; flex-direction:column; gap:12px; }
+.similar-row{ display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px dashed var(--paper-line); font-size:13.5px; }
+.similar-row:last-child{ border-bottom:none; }
+.similar-row .p-name{ font-weight:700; }
+.similar-row .p-desc{ color:var(--ink-soft); font-size:12.5px; }
+.res-tags{ display:flex; flex-wrap:wrap; gap:8px; }
+.pill{
+  display:inline-block; padding:6px 13px; border:1px solid var(--paper-line);
+  border-radius:999px; font-size:12px; color:var(--ink-soft); background:var(--paper);
+}
+
+.advice-list{ display:flex; flex-direction:column; gap:10px; }
+.advice-item{
+  display:flex; gap:10px; font-size:13.5px; line-height:1.8; color:#453f31;
+  background:var(--paper); border:1px solid var(--paper-line); border-radius:2px; padding:12px 14px;
+}
+.advice-item .mk{ color:var(--bamboo); flex-shrink:0; font-weight:700; }
+
+.res-cta{ display:flex; flex-direction:column; gap:12px; margin-top:8px; }
+
+/* 一句话人格总结 */
+.oneliner-box{
+  position:relative; text-align:center; padding:22px 20px; margin-bottom:30px;
+  border-top:1px solid var(--gold); border-bottom:1px solid var(--gold);
+}
+.oneliner-box p{ margin:0; font-size:16.5px; line-height:1.85; font-weight:700; color:var(--ink); }
+
+/* 为什么是你 · 证据 */
+.why-text{ font-size:14px; line-height:1.95; color:#453f31; margin-bottom:16px; }
+.star-rows{ display:flex; flex-direction:column; gap:10px; }
+.star-row{ display:flex; align-items:center; justify-content:space-between; font-size:13.5px; }
+.star-row .dname{ color:var(--ink-soft); }
+.star-row .stars{ color:var(--seal); letter-spacing:2px; font-size:15px; }
+.star-row .stars .dim{ color:var(--paper-line); }
+
+/* 隐藏人格 · 表里句式 */
+.surface-line{ font-size:13.5px; color:var(--ink-soft); margin-bottom:10px; line-height:1.85; }
+.surface-line b{ color:var(--seal); }
+
+/* 同频图谱 TOP5 */
+.top5-list{ display:flex; flex-direction:column; gap:12px; }
+.top5-row{ display:flex; align-items:center; gap:12px; }
+.top5-row .rank{ font-size:13px; color:var(--seal); font-weight:700; width:18px; flex-shrink:0; }
+.top5-row .info{ flex:1; min-width:0; }
+.top5-row .info .nm{ font-size:14px; font-weight:700; }
+.top5-row .info .tg{ font-size:11.5px; color:var(--ink-soft); }
+.top5-row .bar-wrap{ width:96px; flex-shrink:0; }
+.top5-row .bar-track{ height:6px; background:var(--paper-line); border-radius:3px; overflow:hidden; }
+.top5-row .bar-fill{ height:100%; background:var(--seal); }
+.top5-row .pct{ font-size:12px; color:var(--seal); font-weight:700; width:38px; text-align:right; flex-shrink:0; }
+
+/* 如果生活在古代 */
+.role-title-box{ text-align:center; margin-bottom:18px; }
+.role-title-box .lead{ font-size:12.5px; color:var(--ink-soft); margin-bottom:6px; }
+.role-title-box .role{ font-size:19px; font-weight:700; color:var(--seal); }
+.role-cols{ display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+.role-col{ background:var(--paper); border:1px solid var(--paper-line); border-radius:2px; padding:14px; }
+.role-col .rc-h{ font-size:12.5px; font-weight:700; margin-bottom:9px; }
+.role-col.suited .rc-h{ color:var(--bamboo); }
+.role-col.unsuited .rc-h{ color:var(--seal); }
+.role-col ul{ margin:0; padding-left:16px; font-size:12.5px; color:#5b5445; line-height:1.9; }
+
+/* 发展方向 */
+.direction-block{ margin-bottom:18px; }
+.direction-block .db-label{ font-size:12px; color:var(--ink-soft); letter-spacing:.1em; margin-bottom:8px; }
+
+/* 历史人格箴言 */
+.motto-box{
+  text-align:center; padding:30px 22px; margin-bottom:30px; position:relative;
+  background:linear-gradient(180deg, rgba(169,132,63,.08), rgba(169,132,63,.02));
+  border:1px solid var(--gold);
+}
+.motto-box .motto-label{ font-size:11px; letter-spacing:.35em; color:var(--seal); margin-bottom:14px; }
+.motto-box .motto-quote{ font-size:20px; font-weight:700; line-height:1.7; margin-bottom:8px; }
+.motto-box .motto-src{ font-size:12px; color:var(--ink-soft); margin-bottom:16px; }
+.motto-box .motto-interpret{ font-size:13px; color:#453f31; line-height:1.9; }
+
+/* 分享卡弹层 */
+#share-overlay{ position:fixed; inset:0; background:rgba(20,16,10,.6); display:none; align-items:center; justify-content:center; z-index:80; padding:24px; }
+#share-overlay.active{ display:flex; }
+.share-card{
+  width:100%; max-width:340px; background:var(--paper); border:6px solid var(--paper);
+  outline:1px solid var(--gold); padding:30px 24px; border-radius:4px; text-align:center;
+  box-shadow:0 20px 50px rgba(0,0,0,.35);
+}
+.share-card .brand{ font-size:11px; letter-spacing:.4em; color:var(--seal); margin-bottom:10px; }
+.share-card .name{ font-size:30px; font-weight:700; margin-bottom:4px; }
+.share-card .tag{ font-size:12px; color:var(--ink-soft); margin-bottom:14px; }
+.share-card .quote{ font-size:13px; font-style:italic; color:#4a4234; line-height:1.8; margin-bottom:16px; }
+.share-card .stamp-row{ margin-bottom:6px; }
+.share-hint{ text-align:center; font-size:12px; color:var(--ink-soft); margin-top:16px; }
+
+/* 授权码弹层 */
+#auth-overlay{ position:fixed; inset:0; background:rgba(20,16,10,.6); display:none; align-items:center; justify-content:center; z-index:80; padding:24px; }
+#auth-overlay.active{ display:flex; }
+.auth-sheet{ width:100%; max-width:380px; background:var(--paper); border:1px solid var(--gold); border-radius:4px; padding:28px 24px; box-shadow:0 20px 50px rgba(0,0,0,.35); }
+.auth-title{ font-size:18px; font-weight:700; margin-bottom:6px; text-align:center; }
+.auth-sub{ font-size:12px; color:var(--ink-soft); text-align:center; margin-bottom:18px; }
+.auth-input{
+  width:100%; padding:14px 15px; border-radius:3px; border:1.5px solid var(--paper-line);
+  background:#fbf5e6; font-size:15px; margin-bottom:12px; font-family:inherit; letter-spacing:.05em; text-align:center;
+}
+.auth-input:focus{ outline:none; border-color:var(--seal); }
+.auth-error{ color:var(--seal); font-size:12.5px; text-align:center; margin:-4px 0 12px; display:none; }
+.auth-hint{ font-size:12px; color:var(--ink-soft); text-align:center; margin-bottom:18px; line-height:1.8; }
+.auth-hint a{ color:var(--seal); }
+.auth-row{ display:flex; gap:10px; }
+.auth-row button{ flex:1; }
+
+/* 记录弹层 */
+#history-overlay{ position:fixed; inset:0; background:rgba(20,16,10,.6); display:none; align-items:center; justify-content:center; z-index:80; padding:24px; }
+#history-overlay.active{ display:flex; }
+.history-sheet{ width:100%; max-width:380px; background:var(--paper); border:1px solid var(--gold); border-radius:4px; padding:24px; max-height:70vh; overflow-y:auto; }
+.history-sheet h3{ margin:0 0 14px; font-size:17px; text-align:center; }
+.history-item{ display:flex; justify-content:space-between; padding:11px 0; border-bottom:1px dashed var(--paper-line); font-size:13.5px; }
+.history-empty{ font-size:13px; color:var(--ink-soft); text-align:center; padding:20px 0; }
 </style>
 </head>
 <body>
-<div class="app" id="app">
+<div class="paper-bg"></div>
+<svg class="mountains" viewBox="0 0 800 220" preserveAspectRatio="none" height="180" width="100%" aria-hidden="true">
+  <path d="M0,220 L0,150 Q80,80 160,140 T320,120 Q400,60 480,130 T640,110 Q720,70 800,140 L800,220 Z" fill="#8b98a0" opacity=".28"/>
+  <path d="M0,220 L0,180 Q100,120 220,170 T460,150 Q560,110 680,165 T800,150 L800,220 Z" fill="#6f7d86" opacity=".35"/>
+  <path d="M0,220 L0,200 Q150,165 300,200 T600,190 Q700,170 800,198 L800,220 Z" fill="#4f5c63" opacity=".4"/>
+</svg>
 
-  <!-- ============ 封面 ============ -->
-  <section class="screen active" id="screen-cover">
-    <div class="eyebrow">Historical Profile</div>
-    <div class="brand">HISTORIA</div>
-    <div class="brand-cn">历 史 人 物 原 型</div>
-    <div class="intro-copy">
-      26 个历史瞬间，邀你以身入境<br>
-      立于风云变幻的关头，权衡立场、代价与归处<br>
-      循着每一次取舍，照见与你相近的历史人物
-    </div>
-    <div class="dots">· · ·</div>
-    <button class="btn btn-dark" onclick="openAuth()">开 始 探 索</button>
-    <button class="btn btn-outline" style="margin-top:12px;" onclick="openHistory()">↻ 查看历史记录</button>
-
-    <div class="note-card">
-      <div class="note-eyebrow">Historia · Immersion Note</div>
-      <h3>以身入境，照见选择的来处</h3>
-      <p>历史现场是入口，真正被凝视的始终是你。在秩序与改变、忠诚与立场、行动与时机之间，每一次取舍都会留下属于你的回声。</p>
-      <div class="note-item"><span class="n">01</span><span>进入情境，先听见自己在关键时刻真正守护的东西。</span></div>
-      <div class="note-item"><span class="n">02</span><span>人物不是标签，而是被时代、立场与代价淬炼出的选择路径。</span></div>
-      <div class="note-item"><span class="n">03</span><span>最终照见的，不只是你与谁相似，更是某种力量的方向与边界。</span></div>
-    </div>
-  </section>
-
-  <!-- ============ 题目页 ============ -->
-  <section class="screen" id="screen-quiz">
-    <div class="q-progress-wrap">
-      <div class="q-progress-top">
-        <span>Scene Judgement</span>
-        <span id="q-index">01 / 20</span>
+<!-- ============ 一、卷轴入口 ============ -->
+<main class="stage active" id="stage-cover">
+  <div class="scroll-wrap">
+    <div class="scroll-rod top"></div>
+    <div class="scroll-panel">
+      <div class="cover-eyebrow">探 格 · 人 格 溯 源</div>
+      <div class="vertical-title">探格寻史</div>
+      <p class="cover-copy">
+        非测你是谁，乃<b>探你本相</b>。<br>
+        二十重历史之境，二十次抉择，<br>
+        循着你在关头留下的痕迹，<br>
+        照见那个与你气性相通的<b>历史人格原型</b>。
+      </p>
+      <div class="cover-cta">
+        <button class="seal-btn" onclick="handleStartClick()">开 启 人 格 探 索</button>
+        <button class="link-btn" onclick="openHistory()">查看探索存档</button>
       </div>
-      <div class="q-progress-bar"><div class="q-progress-fill" id="q-progress-fill" style="width:5%"></div></div>
     </div>
+    <div class="scroll-rod bottom"></div>
+  </div>
+
+  <div class="strip-note" role="note">
+    <div class="strip"><span class="num">其一</span>　境非终点，境中的取舍才是入口。</div>
+    <div class="strip"><span class="num">其二</span>　人格不是标签，是被时代与代价淬炼出的路径。</div>
+    <div class="strip"><span class="num">其三</span>　最终照见的，不只是你像谁，更是你身上那股力量的方向。</div>
+  </div>
+</main>
+
+<!-- ============ 二、探索卷 · 题目 ============ -->
+<main class="stage" id="stage-quiz">
+  <div class="col">
+    <div class="quiz-head">
+      <span class="chapter" id="q-chapter">第一境</span>
+      <span class="of" id="q-of">共二十境</span>
+    </div>
+    <div class="dot-track" id="dot-track"></div>
+
+    <div class="q-bg-box">
+      <span class="mark">卷</span>
+      <p id="q-bg"></p>
+    </div>
+
     <div class="q-text" id="q-text"></div>
     <div class="q-options" id="q-options"></div>
-    <div class="q-foot">
-      <button id="btn-prev" onclick="prevQuestion()">上一题</button>
-      <button onclick="goHome()">回到首页</button>
-      <span style="width:44px;"></span>
+
+    <div class="proverb-box">
+      <span class="pv-label">历 史 箴 言</span>
+      <div class="pv" id="q-proverb"></div>
     </div>
-    <div class="q-hint">凭直觉作答 · 选择后自动跳转</div>
-  </section>
 
-  <!-- ============ 结果页 ============ -->
-  <section class="screen" id="screen-result">
-    <div class="res-eyebrow"><span>Historia</span><span id="res-count">No.— / 48</span></div>
-    <div class="res-sub">你的历史人物原型是</div>
-    <div class="res-name" id="res-name">—</div>
-    <div class="res-tag" id="res-tag">—</div>
+    <div class="q-foot">
+      <button class="link-btn" id="btn-prev" onclick="prevQuestion()">◂ 上一境</button>
+      <button class="link-btn" onclick="goHome()">收卷 · 回首页</button>
+    </div>
+  </div>
+</main>
+
+<!-- ============ 三、历史人格档案 · 结果 ============ -->
+<main class="stage" id="stage-result">
+  <div class="col">
+
+    <!-- ① 历史人格原型 -->
+    <div class="dossier-head">
+      <div class="dossier-eyebrow">历 史 人 格 档 案</div>
+      <div class="dossier-no" id="res-count">档案 No.— / 48</div>
+    </div>
+    <div class="name-seal-row">
+      <div class="name" id="res-name">—</div>
+      <div class="ink-seal" id="res-seal">—</div>
+    </div>
+    <div class="res-tagline" id="res-tag">—</div>
     <div class="res-quote" id="res-quote">"—"</div>
-    <div class="res-keywords" id="res-keywords"></div>
+    <div class="stamp-row" id="res-keywords"></div>
 
-    <div class="res-section">
-      <h4><span class="mark">◈</span>你的核心轮廓</h4>
+    <!-- ② 一句话人格总结 -->
+    <div class="oneliner-box"><p id="res-oneliner"></p></div>
+
+    <!-- ③ 为什么你会得到这个结果 -->
+    <div class="section">
+      <div class="section-h"><span class="glyph">◆</span>为什么你会得到这个结果<span class="rule"></span></div>
+      <div class="why-text" id="res-why"></div>
+      <div class="star-rows" id="res-stars"></div>
+    </div>
+
+    <!-- ④ 五维人格画像 -->
+    <div class="section">
+      <div class="section-h"><span class="glyph">◆</span>五维人格画像<span class="rule"></span></div>
+      <div class="radar-wrap">
+        <div id="radar-holder"></div>
+        <div class="radar-legend">
+          <span><i class="leg-dot you"></i>你的取舍</span>
+          <span><i class="leg-dot ref"></i>参照人物</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ⑤ 历史映照（保留：把原型讲成故事） -->
+    <div class="section">
+      <div class="section-h"><span class="glyph">◆</span>历史映照<span class="rule"></span></div>
       <div class="res-core" id="res-core"></div>
     </div>
 
-    <div class="res-section">
-      <h4><span class="mark">◈</span>你的行为倾向</h4>
-      <div id="res-dims"></div>
+    <!-- ⑥ 核心优势 -->
+    <div class="section">
+      <div class="section-h"><span class="glyph">◆</span>你的核心优势<span class="rule"></span></div>
+      <div class="bamboo-list" id="res-strengths"></div>
     </div>
 
-    <div class="res-section">
-      <h4><span class="mark">◈</span>你身上的优势</h4>
-      <div class="res-list" id="res-strengths"></div>
+    <!-- ⑦ 性格盲区 -->
+    <div class="section">
+      <div class="section-h"><span class="glyph">◆</span>你的性格盲区<span class="rule"></span></div>
+      <div class="bamboo-list" id="res-weaknesses"></div>
     </div>
 
-    <div class="res-section">
-      <h4><span class="mark">◈</span>你的隐藏弱点</h4>
-      <div class="res-list" id="res-weaknesses"></div>
-    </div>
-
-    <div class="res-section">
-      <h4><span class="mark">◈</span>你的第二人格</h4>
-      <div class="res-second-box">
+    <!-- ⑧ 隐藏人格 -->
+    <div class="section">
+      <div class="section-h"><span class="glyph">◆</span>你的隐藏人格<span class="rule"></span></div>
+      <div class="second-box">
+        <div class="surface-line" id="res-surface"></div>
         <div class="combo" id="res-combo"></div>
         <p id="res-combo-text"></p>
       </div>
     </div>
 
-    <div class="res-rarity" id="res-rarity"></div>
+    <!-- ⑨ 历史人物同频图谱 TOP5 -->
+    <div class="section">
+      <div class="section-h"><span class="glyph">◆</span>历史人物同频图谱<span class="rule"></span></div>
+      <div class="similar-box"><div class="top5-list" id="res-top5"></div></div>
+    </div>
 
-    <div class="res-section">
-      <h4><span class="mark">◈</span>你适合的方向</h4>
-      <div class="res-tags" id="res-suitable"></div>
+    <!-- ⑩ 如果你生活在古代 -->
+    <div class="section">
+      <div class="section-h"><span class="glyph">◆</span>如果你生活在古代<span class="rule"></span></div>
+      <div class="role-title-box">
+        <div class="lead">你可能不是最喜欢冲锋陷阵的人，你更可能成为</div>
+        <div class="role" id="res-role-title">—</div>
+      </div>
+      <div class="role-cols">
+        <div class="role-col suited"><div class="rc-h">最适合</div><ul id="res-role-suited"></ul></div>
+        <div class="role-col unsuited"><div class="rc-h">不太适合</div><ul id="res-role-unsuited"></ul></div>
+      </div>
+    </div>
+
+    <!-- ⑪ 现实中的方向与建议 -->
+    <div class="section">
+      <div class="section-h"><span class="glyph">◆</span>现实中的方向与建议<span class="rule"></span></div>
+      <div class="direction-block">
+        <div class="db-label">适合的方向</div>
+        <div class="res-tags" id="res-suitable"></div>
+      </div>
+      <div class="direction-block">
+        <div class="db-label">给你的成长建议</div>
+        <div class="advice-list" id="res-advice"></div>
+      </div>
+    </div>
+
+    <!-- ⑫ 历史人格箴言 -->
+    <div class="motto-box">
+      <div class="motto-label">历 史 人 格 箴 言</div>
+      <div class="motto-quote" id="res-motto-quote">"—"</div>
+      <div class="motto-src" id="res-motto-src">——</div>
+      <div class="motto-interpret" id="res-motto-interpret"></div>
     </div>
 
     <div class="res-cta">
-      <button class="btn btn-dark" onclick="restartTest()">重新测试</button>
-      <button class="btn btn-outline" onclick="goHome()">返回首页</button>
-    </div>
-    <div class="res-share-hint">截图保存这张结果，分享给懂你的人</div>
-  </section>
-
-  <!-- ============ 授权码弹窗 ============ -->
-  <div id="auth-overlay">
-    <div class="auth-sheet">
-      <div class="auth-title"><span class="icon">🔑</span>请输入授权码</div>
-      <input type="text" id="auth-input" class="auth-input" placeholder="请输入授权码即可点击开始探索" autocomplete="off">
-      <div class="auth-error" id="auth-error">授权码不正确，请检查后重新输入</div>
-      <div class="auth-hint-box">
-        <div class="lock-line">🔒 获取授权码</div>
-        <p>授权码可以在以下平台获取：</p>
-        <a class="shop-link" href="#" target="_blank" rel="noopener">⊕ 小红书店铺</a>
-      </div>
-      <div class="auth-row">
-        <button class="btn btn-outline" onclick="closeAuth()">取消</button>
-        <button class="btn btn-accent" onclick="verifyCode()">开始探索</button>
-      </div>
+      <button class="seal-btn" onclick="openShareCard()">生 成 分 享 卡</button>
+      <button class="seal-btn ghost" onclick="restartTest()">重新展卷</button>
+      <button class="link-btn" onclick="goHome()" style="align-self:center;">返回首页</button>
     </div>
   </div>
+</main>
 
-  <!-- ============ 历史记录弹窗 ============ -->
-  <div id="history-overlay">
-    <div class="history-sheet">
-      <h3>历史记录</h3>
-      <div id="history-list"></div>
-      <button class="btn btn-outline" style="margin-top:14px;" onclick="closeHistory()">关闭</button>
+<!-- ============ 授权码弹层 ============ -->
+<div id="auth-overlay">
+  <div class="auth-sheet">
+    <div class="auth-title">请出示探索凭证</div>
+    <div class="auth-sub">即购买后获得的授权码</div>
+    <input type="text" id="auth-input" class="auth-input" placeholder="请输入授权码" autocomplete="off">
+    <div class="auth-error" id="auth-error">凭证有误，请核对后重新输入</div>
+    <div class="auth-hint">尚未取得凭证？可前往 <a href="#" target="_blank" rel="noopener">小红书店铺</a> 获取</div>
+    <div class="auth-row">
+      <button class="seal-btn ghost" onclick="closeAuth()">取消</button>
+      <button class="seal-btn" onclick="verifyCode()">开始探索</button>
     </div>
   </div>
+</div>
 
+<!-- ============ 分享卡弹层 ============ -->
+<div id="share-overlay">
+  <div>
+    <div class="share-card" id="share-card-body">
+      <div class="brand">探 格 · 历 史 人 格 档 案</div>
+      <div class="name" id="share-name">—</div>
+      <div class="tag" id="share-tag">—</div>
+      <div class="stamp-row" id="share-keywords"></div>
+      <div class="quote" id="share-hidden" style="margin-bottom:10px;">隐藏人格：—</div>
+      <div class="quote" id="share-quote">"—"</div>
+    </div>
+    <div class="share-hint">长按或截图保存，分享给懂你的人</div>
+    <div style="text-align:center; margin-top:14px;">
+      <button class="link-btn" onclick="closeShareCard()">关闭</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ 探索存档弹层 ============ -->
+<div id="history-overlay">
+  <div class="history-sheet">
+    <h3>探索存档</h3>
+    <div id="history-list"></div>
+    <div style="text-align:center; margin-top:14px;">
+      <button class="link-btn" onclick="closeHistory()">关闭</button>
+    </div>
+  </div>
 </div>
 
 <script>
 /* =========================================================================
-   一、授权码配置
-   ------------------------------------------------------------------------
-   把要发放给买家的授权码填在下面数组里（不区分大小写、自动去除首尾空格）。
-   卖出一份就可以给一个专属码，也可以设置几个通用码重复使用。
-   验证是纯前端逻辑，只能防止随手误用，无法防止代码层面的破解，
-   如需更强的防护，需要后端校验（可以后续再升级）。
+   授权码配置——把发放给买家的授权码填在这里
    ========================================================================= */
-const VALID_CODES = [
-  "HISTORIA2026",
-  "HAIHUI888",
-  "TEST0001",
-  "TEST0002"
+const VALID_CODES = ["TANGE2026","HAIHUI888","TEST0001","TEST0002"];
+
+/* =========================================================================
+   历史箴言（公共领域经典语录，按题序轮播）
+   ========================================================================= */
+const PROVERBS = [
+ "凡事预则立，不预则废。——《礼记》",
+ "知彼知己，百战不殆。——《孙子兵法》",
+ "小不忍则乱大谋。——《论语》",
+ "治大国若烹小鲜。——《道德经》",
+ "疾风知劲草，板荡识诚臣。——李世民",
+ "穷则变，变则通，通则久。——《周易》",
+ "天行健，君子以自强不息。——《周易》",
+ "祸兮福之所倚，福兮祸之所伏。——《道德经》",
+ "采菊东篱下，悠然见南山。——陶渊明",
+ "机不可失，时不再来。——《旧五代史》",
+ "兼听则明，偏信则暗。——《资治通鉴》",
+ "山重水复疑无路，柳暗花明又一村。——陆游",
+ "知人者智，自知者明。——《道德经》",
+ "君子藏器于身，待时而动。——《周易》",
+ "锲而不舍，金石可镂。——《荀子》",
+ "入乡随俗。——传统谚语",
+ "清者自清，浊者自浊。——传统谚语",
+ "桃李不言，下自成蹊。——《史记》",
+ "鱼与熊掌，不可兼得。——《孟子》",
+ "路遥知马力，日久见人心。——传统谚语"
 ];
 
 /* =========================================================================
-   二、20题题库
+   20 境题库（保留原有20题探索逻辑，新增历史背景与箴言）
    arche: 0战略谋局 1领袖掌控 2逆境破局 3理想自由 4信念担当 5智慧觉察 6情感创造 7独立破局
-   dim:   0开放性 1责任心 2外向影响力 3情绪敏感度 4自主独立性
+   dim:   0灵性通达 1定力持重 2锋芒外显 3情思幽微 4孤高独往
    ========================================================================= */
 const QUESTIONS = [
-{ text:"鸿门宴上暗藏杀机，你站在刘邦的位置，明知此行可能有危险。你会：",
+{ bg:"秦末楚汉相争，项羽在鸿门设宴款待刘邦，宴席之上暗藏杀机，史称「鸿门宴」。",
+  text:"你站在刘邦的位置，明知此行可能有危险，你会：",
   options:[
     {t:"冒险赴宴，正面观察对方态度。", arche:1, dim:2},
     {t:"尽量避免正面冲突，先保全自己。", arche:5, dim:4},
     {t:"提前做好多套应对方案。", arche:0, dim:1},
     {t:"借这个机会判断对方真正的意图。", arche:2, dim:0}
 ]},
-{ text:"刘备三顾茅庐，若你是诸葛亮，对方第三次登门相邀，你更可能：",
+{ bg:"刘备为求贤才，三次亲赴隆中茅庐拜访诸葛亮，最终请得这位年轻谋士出山相助。",
+  text:"若你是诸葛亮，对方第三次登门相邀，你更可能：",
   options:[
     {t:"认为这是改变人生的机会，接受邀请。", arche:1, dim:2},
     {t:"继续观察，不急着做决定。", arche:0, dim:1},
     {t:"先判断这个团队是否真的值得加入。", arche:5, dim:0},
     {t:"如果现实与理想差距太大，宁愿坚持自己的生活。", arche:3, dim:4}
 ]},
-{ text:"韩信年轻时被人当众逼迫受辱，他忍了下来。若是你遭遇类似的公开羞辱，会更接近：",
+{ bg:"韩信年少家贫，曾被淮阴屠户当众羞辱，命他从胯下爬过，韩信选择了隐忍。",
+  text:"若是你遭遇类似的公开羞辱，会更接近：",
   options:[
     {t:"忍下来，把注意力放在未来。", arche:2, dim:1},
     {t:"当场回击，绝不能被当成弱者。", arche:1, dim:2},
     {t:"转身离开这个环境，从新的地方开始。", arche:7, dim:4},
     {t:"把这次经历当成了解自己和他人的机会。", arche:5, dim:3}
 ]},
-{ text:"商鞅提出变法，身边绝大多数人都反对。如果是你，会：",
+{ bg:"商鞅在秦国推行变法，触动了旧贵族的利益，改革之初几乎遭到满朝反对。",
+  text:"若是你，会：",
   options:[
     {t:"坚持认为正确的方向，不轻易动摇。", arche:4, dim:1},
     {t:"调整策略，让更多人逐渐接受。", arche:0, dim:0},
     {t:"先建立自己的支持力量，再稳步推进。", arche:1, dim:2},
     {t:"如果阻力过大，重新评估是否值得坚持。", arche:5, dim:0}
 ]},
-{ text:"岳飞抗金，面对一个需要有人挺身承担的危急局面，你会：",
+{ bg:"南宋风雨飘摇之际，岳飞率岳家军抗击金兵，以「精忠报国」之志力挽狂澜。",
+  text:"面对一个需要有人挺身承担的危急局面，你会：",
   options:[
     {t:"只要认为是该做的事，就主动承担。", arche:4, dim:1},
     {t:"先判断自己是否真的有能力解决。", arche:0, dim:1},
     {t:"组织更多人一起分担这份责任。", arche:1, dim:2},
     {t:"如果制度本身有问题，会先考虑推动改变。", arche:7, dim:4}
 ]},
-{ text:"如果你拥有远超周围人的能力，但现有的规则和身份限制了你的发展，你会：",
+{ bg:"武则天从才人一路走到女帝之位，在男性主导的朝堂规则里，走出了一条前所未有的路。",
+  text:"如果你拥有远超周围人的能力，却被现有的规则和身份限制，你会：",
   options:[
     {t:"努力进入规则的核心位置。", arche:1, dim:2},
     {t:"利用现有规则，一步步扩大自己的影响力。", arche:0, dim:1},
     {t:"直接挑战这套规则。", arche:7, dim:4},
     {t:"不一定要争夺权力，我更希望拥有自己的空间。", arche:3, dim:4}
 ]},
-{ text:"李白空有才华，却始终与现实中的规则格格不入。若是你，会：",
+{ bg:"李白才华横溢，曾一度供奉翰林，却始终无法真正融入朝堂的规则与拘束。",
+  text:"若是你，空有才华却与现实规则格格不入，会：",
   options:[
     {t:"努力适应规则，争取在体制内实现理想。", arche:1, dim:1},
     {t:"尽量保持自己的独立性，不完全被同化。", arche:7, dim:4},
     {t:"离开不适合自己的环境。", arche:3, dim:4},
     {t:"寻找第三种方式，把才华换一种方式发挥出来。", arche:6, dim:0}
 ]},
-{ text:"人生遭遇一次足以改变命运的重大打击，你更可能：",
+{ bg:"司马迁因替李陵辩护而遭受宫刑之辱，却在极大的屈辱中写成了《史记》。",
+  text:"人生遭遇一次足以改变命运的重大打击，你更可能：",
   options:[
     {t:"完成自己认定必须完成的事情，不留遗憾。", arche:4, dim:1},
     {t:"重新开始，换一条人生道路。", arche:2, dim:4},
     {t:"把这次经历转化成未来的力量。", arche:2, dim:1},
     {t:"接受无法改变的事情，重新理解自己。", arche:5, dim:3}
 ]},
-{ text:"陶渊明放弃仕途，选择归隐田园。如果你已拥有一定的社会地位，会：",
+{ bg:"陶渊明曾任彭泽县令，因不愿「为五斗米折腰」，挂印辞官，归隐田园。",
+  text:"如果你已拥有一定的社会地位，会：",
   options:[
     {t:"继续向更高的目标前进。", arche:1, dim:2},
     {t:"选择更自由、更简单的生活。", arche:3, dim:4},
     {t:"留在原来的位置，继续发挥自己的影响力。", arche:1, dim:2},
     {t:"找一个真正感兴趣的领域，重新深入研究。", arche:0, dim:0}
 ]},
-{ text:"你手里握有一项重要的资源或筹码，但眼下还没有足够的力量去使用它，你会：",
+{ bg:"楚汉相争之时，韩信手握重兵，一度面临着为自己还是为刘邦谋划的关键抉择。",
+  text:"你手里握有一项重要的资源，眼下还没有足够力量使用它，你会：",
   options:[
     {t:"耐心等待最合适的时机。", arche:2, dim:1},
     {t:"尽快利用它，先建立优势。", arche:1, dim:2},
     {t:"整合手头的资源，谋定而后动。", arche:0, dim:0},
     {t:"重新寻找一条不依赖这项资源的路。", arche:3, dim:4}
 ]},
-{ text:"面对一个重大的决定，你的第一反应通常是：",
+{ bg:"战国纵横家苏秦游说六国之前，曾闭门苦读一年，将天下局势反复推演。",
+  text:"面对一个重大的决定，你的第一反应通常是：",
   options:[
     {t:"先收集大量信息，再下判断。", arche:0, dim:0},
     {t:"更相信自己的第一感觉。", arche:6, dim:3},
     {t:"找几个真正信任的人一起商量。", arche:1, dim:2},
     {t:"先行动起来，再根据结果调整。", arche:7, dim:4}
 ]},
-{ text:"如果原本的计划突然被打乱，你更可能：",
+{ bg:"赤壁之战前夕，曹操的连环船计划被一场东风彻底打乱。",
+  text:"如果原本的计划突然被打乱，你更可能：",
   options:[
     {t:"马上重新制定一套新计划。", arche:0, dim:1},
     {t:"顺其自然，看看会不会有新的机会。", arche:3, dim:0},
     {t:"先冷静下来，找出最关键的那个问题。", arche:5, dim:0},
     {t:"确实会有点烦躁，但最后还是会调整过来。", arche:6, dim:3}
 ]},
-{ text:"当别人不认同你的观点时，你通常会：",
+{ bg:"王安石推行新法时，遭遇满朝士大夫的强烈反对，包括昔日好友司马光。",
+  text:"当别人不认同你的观点时，你通常会：",
   options:[
     {t:"想办法说服对方。", arche:1, dim:2},
     {t:"先试着理解对方为什么会这么想。", arche:5, dim:3},
     {t:"重新检查一遍自己的判断依据。", arche:0, dim:1},
     {t:"如果我确定自己是对的，不太会轻易改变。", arche:4, dim:1}
 ]},
-{ text:"以下几种情况，你更无法接受哪一种：",
+{ bg:"屈原被流放江南，眼见楚国江河日下却无力回天，最终投江明志。",
+  text:"以下几种情况，你更无法接受哪一种：",
   options:[
     {t:"没有目标、浑浑噩噩地生活。", arche:4, dim:1},
     {t:"被别人完全控制和安排。", arche:7, dim:4},
     {t:"明明有能力，却始终等不到机会。", arche:2, dim:2},
     {t:"失去对自己而言真正重要的人。", arche:6, dim:3}
 ]},
-{ text:"如果一件事需要坚持很多年才能看到结果，你会：",
+{ bg:"勾践卧薪尝胆二十年，只为等待雪耻复国的那一天。",
+  text:"如果一件事需要坚持很多年才能看到结果，你会：",
   options:[
     {t:"只要认定值得，我可以一直坚持下去。", arche:4, dim:1},
     {t:"先小范围试一试，确认真的值得再长期投入。", arche:0, dim:0},
     {t:"坦白说，我更喜欢能快速看到反馈的事。", arche:1, dim:2},
     {t:"只要过程中能持续成长，我愿意留下来。", arche:5, dim:0}
 ]},
-{ text:"进入一个完全陌生的环境时，你通常会：",
+{ bg:"张骞出使西域，途经陌生的国度与部族，凭借观察与耐心一路化险为夷。",
+  text:"进入一个完全陌生的环境时，你通常会：",
   options:[
     {t:"先观察这里的规则和人际关系。", arche:0, dim:0},
     {t:"主动认识新的人，尽快融入。", arche:1, dim:2},
     {t:"先找到自己能站住的位置，再行动。", arche:2, dim:1},
     {t:"更愿意直接做自己，不太在意环境怎么看。", arche:3, dim:4}
 ]},
-{ text:"当你被别人误解时，你更可能：",
+{ bg:"岳飞蒙受「莫须有」的罪名而死，千百年后才被后人昭雪正名。",
+  text:"当你被别人误解时，你更可能：",
   options:[
     {t:"想办法把事情解释清楚。", arche:1, dim:2},
     {t:"如果不是很重要，就不解释了。", arche:3, dim:4},
     {t:"心里其实会很在意，久久放不下。", arche:6, dim:3},
     {t:"不多说，用后续的行动去证明。", arche:4, dim:1}
 ]},
-{ text:"如果只能选一个词，你更希望别人这样评价你：",
+{ bg:"诸葛亮在《出师表》中自陈「鞠躬尽瘁，死而后已」，道出了自己最看重的评价。",
+  text:"如果只能选一个词，你更希望别人这样评价你：",
   options:[
     {t:"有能力。", arche:1, dim:2},
     {t:"值得信赖。", arche:4, dim:1},
     {t:"有思想、有见地。", arche:5, dim:0},
     {t:"有魅力、让人难忘。", arche:6, dim:3}
 ]},
-{ text:"如果人生只能选择留下其中一样，你会选：",
+{ bg:"范蠡助越王勾践复国后，选择急流勇退，泛舟五湖，以自由换取安宁。",
+  text:"如果人生只能选择留下其中一样，你会选：",
   options:[
     {t:"成就与影响力。", arche:1, dim:2},
     {t:"自由。", arche:3, dim:4},
     {t:"稳定与安全感。", arche:4, dim:1},
     {t:"深刻的情感体验。", arche:6, dim:3}
 ]},
-{ text:"很久以后有人用一句话记下你的选择，你最希望别人记住的是：",
+{ bg:"司马迁在《报任安书》中回望自己的一生，写下了对生死与价值的感悟。",
+  text:"很久以后有人用一句话记下你的选择，你最希望别人记住的是：",
   options:[
     {t:"我曾努力让自己拥有更大的影响力。", arche:1, dim:2},
     {t:"我一直都在为了更自由地活着而努力。", arche:3, dim:4},
@@ -475,10 +777,10 @@ const QUESTIONS = [
 ];
 
 /* =========================================================================
-   三、8大人格阵营内容
+   八大人格阵营（含徽印短语 + 成长箴言，新增于原设定之上）
    ========================================================================= */
 const ARCHETYPES = [
-{ title:"战略谋局型",
+{ title:"战略谋局型", sealText:"谋局",
   keywords:["洞察","规划","长期主义","责任"],
   quote:"你习惯在别人看到问题之前，提前想清楚它会往哪里发展。",
   core:"面对重要的事，你很少急着下场。你更愿意先看清全局，把复杂的局面拆解成可以掌控的步骤，再决定自己该往哪一步走。别人看到的是眼前，你更容易看到局势的下一阶段。",
@@ -493,9 +795,20 @@ const ARCHETYPES = [
     {h:"容易独自承担",d:"你习惯自己把问题解决掉，不一定会主动开口求助。"}
   ],
   suitableFor:["战略","管理","咨询","研究","产品规划"],
-  rarity:"在8种历史人格原型中，「战略谋局型」不是人群中声音最大的那一种，却往往是关键时刻被大家悄悄依赖的那个人。"
+  advice:[
+    "定期给自己设一个「不必想清楚就先做」的小任务，练习和不确定性共处。",
+    "遇到犹豫不决时，给决策设一个明确的截止时间。",
+    "主动请一位信任的人帮你分担部分责任，而不是全部扛下来。"
+  ],
+  oneLiner:"你真正擅长的，不是抢先出手，而是在别人还没看清局势之前，已经想清楚了下一步。",
+  whyText:"在关键抉择中，你反复表现出「先看清全局，再决定行动」的倾向——面对压力时，你更愿意花时间想清楚可能的后果，而不是急着给出反应。这正是「战略谋局型」人格最典型的选择模式。",
+  ancientRole:{ title:"军师 / 谋士 / 政略制定者",
+    suited:["军师谋臣","政务统筹","资源规划"],
+    unsuited:["无计划的冒险","高频社交竞争","被动执行不问缘由"]},
+  motto:{ quote:"静以修身，俭以养德。", src:"——诸葛亮《诫子书》",
+    interpret:"你真正的力量，不在于急着证明自己，而在于长期积累之后拥有选择的能力。"}
 },
-{ title:"领袖掌控型",
+{ title:"领袖掌控型", sealText:"掌控",
   keywords:["决断","掌控","行动力","目标感"],
   quote:"复杂的局面里，你从不怕成为那个做决定的人。",
   core:"你不喜欢把主动权交出去。面对混乱和不确定，你更愿意站到能推动事情的位置上，把方向定下来，再带着人往前走。你的存在感，往往来自「事情因为你而有了进展」。",
@@ -510,9 +823,20 @@ const ARCHETYPES = [
     {h:"难以真正休息",d:"停下来「什么都不掌控」，对你来说反而不太舒服。"}
   ],
   suitableFor:["创业","管理","谈判","团队负责人"],
-  rarity:"「领袖掌控型」在测试中不算最常见的类型——愿意主动承担、把方向定下来的人，始终是少数。"
+  advice:[
+    "在推进节奏之外，留出专门倾听他人感受的时间。",
+    "遇到分歧时，先问一句「你怎么看」，再给出自己的判断。",
+    "允许自己有不需要掌控任何事的休息时段。"
+  ],
+  oneLiner:"你真正擅长的，不是等待完美的时机，而是在局面混乱的时候，先把方向定下来。",
+  whyText:"你在多道题里都选择了主动站到能推动事情的位置上——不回避责任、不等别人先开口。这种「先把方向定下来」的习惯，是「领袖掌控型」人格最核心的行为证据。",
+  ancientRole:{ title:"统帅 / 执政者 / 开创者",
+    suited:["统领全局","开创新局面","关键决策"],
+    unsuited:["长期做执行细节","完全听命于人","无关紧要的琐事"]},
+  motto:{ quote:"天行健，君子以自强不息。", src:"——《周易》",
+    interpret:"你的力量来自愿意先迈出那一步，而不是等别人先动。"}
 },
-{ title:"逆境破局型",
+{ title:"逆境破局型", sealText:"破局",
   keywords:["韧性","忍耐","蓄力","翻盘"],
   quote:"你不怕从低处重新开始，你怕的是还没到时候就放弃。",
   core:"你很少指望一步到位。哪怕眼前是低谷，你也更愿意先忍住、先积蓄，把力气留到真正值得的时刻再释放。别人看到的是你在「忍」，你自己知道那是在「等」。",
@@ -527,9 +851,20 @@ const ARCHETYPES = [
     {h:"不擅长示弱",d:"需要帮助时，你的第一反应往往是自己再撑一下。"}
   ],
   suitableFor:["创业","危机应对","长期项目","逆境管理"],
-  rarity:"「逆境破局型」往往要真正经历过低谷才会显形，这也是它在测试结果里相对少见的原因。"
+  advice:[
+    "定期检视手头的「时机」是否已经成熟，不要一直等下去。",
+    "练习在需要帮助时，主动开口而不是独自硬扛。",
+    "给已经过去的低谷一个「结束仪式」，避免一直背负。"
+  ],
+  oneLiner:"你真正擅长的，不是一路顺风顺水，而是在没人看好的时候，依然能撑到局势翻转的那一刻。",
+  whyText:"面对压力和羞辱性的情境，你更倾向于先忍住、先积蓄，而不是当场爆发或立刻放弃。这种「愿意为了后面的结果，先熬过现在」的耐性，正是「逆境破局型」的典型特征。",
+  ancientRole:{ title:"逆境统帅 / 地方治理 / 危机应对者",
+    suited:["逆境统帅","危机应对","长期蛰伏后的反击"],
+    unsuited:["一帆风顺无波澜的环境","需要即时满足的事","过度依赖他人保护"]},
+  motto:{ quote:"天将降大任于斯人也，必先苦其心志。", src:"——《孟子》",
+    interpret:"你的价值往往要经过一段没人看好的时间，才会被真正看见。"}
 },
-{ title:"理想自由型",
+{ title:"理想自由型", sealText:"自由",
   keywords:["自由","创造","理想","不被定义"],
   quote:"你可以适应规则，但你从不想被规则定义。",
   core:"你重视精神上的自由，胜过重视世俗意义上的成功。比起按部就班，你更愿意按照自己的节奏和方式生活，哪怕这意味着要放弃一些看起来正确的选项。",
@@ -544,9 +879,20 @@ const ARCHETYPES = [
     {h:"与现实节奏有距离",d:"你可能不太擅长在「必须妥协」的场合周旋。"}
   ],
   suitableFor:["创作","自由职业","内容","艺术相关领域"],
-  rarity:"「理想自由型」在现实压力下很容易被磨平，能一直守住这份自由感的人，并不算多。"
+  advice:[
+    "给重要但重复的事，设计一套让自己不无聊的执行方式。",
+    "找一个愿意陪你把想法落地的伙伴，弥补执行上的短板。",
+    "在感到被束缚前，提前和环境商量出一点弹性空间。"
+  ],
+  oneLiner:"你真正擅长的，不是按照标准答案生活，而是在众多可能性里，找到真正属于自己的那一条。",
+  whyText:"在规则和自我之间，你更多次选择了后者——哪怕要付出代价，你也更愿意保留自己的空间。这种取舍反复出现，是「理想自由型」人格最明显的印记。",
+  ancientRole:{ title:"游历文人 / 创作者 / 独立幕僚",
+    suited:["游历与创作","独立幕僚","不受拘束的专业事务"],
+    unsuited:["严格科层制度","重复性事务","被固定标准束缚的岗位"]},
+  motto:{ quote:"安能摧眉折腰事权贵，使我不得开心颜。", src:"——李白《梦游天姥吟留别》",
+    interpret:"你宁可放弃一部分安稳，也要为自己留一条能喘气的路。"}
 },
-{ title:"信念担当型",
+{ title:"信念担当型", sealText:"担当",
   keywords:["原则","坚持","责任","气节"],
   quote:"认定值得坚持的事，你很难轻易松手。",
   core:"你有自己明确的原则，一旦认定某件事是对的，就很少因为外界的压力而轻易改变。别人可能觉得你固执，但你知道，有些边界一旦退让，就再也守不住了。",
@@ -561,9 +907,20 @@ const ARCHETYPES = [
     {h:"不容易调头",d:"承认「这条路走不通」，对你来说比别人更难。"}
   ],
   suitableFor:["法律","公共事务","监督","需要坚守底线的岗位"],
-  rarity:"「信念担当型」需要长期的自我要求才能维持，这也是它在结果中偏少见的原因之一。"
+  advice:[
+    "定期问自己「这条原则还适用于现在的情况吗」。",
+    "允许自己在没有把握全对的情况下，先调整方向。",
+    "把「对自己的高标准」适当降低一档，看看会发生什么。"
+  ],
+  oneLiner:"你真正擅长的，不是随时讨好所有人，而是在关键时刻，守住那条别人可能会退让的底线。",
+  whyText:"面对原则被挑战、局面被误解的情境，你几乎都选择了「先守住底线」而不是「先求变通」。这种一以贯之的坚持，构成了「信念担当型」人格的核心证据。",
+  ancientRole:{ title:"监察御史 / 守土之臣 / 原则坚守者",
+    suited:["监察与督查","坚守底线的岗位","需要公信力的事务"],
+    unsuited:["需要频繁变通妥协","投机性强的环境","规则模糊不清的场合"]},
+  motto:{ quote:"人生自古谁无死，留取丹心照汗青。", src:"——文天祥《过零丁洋》",
+    interpret:"你愿意为了某种更长久的东西，放弃眼前的方便。"}
 },
-{ title:"智慧觉察型",
+{ title:"智慧觉察型", sealText:"觉察",
   keywords:["反思","觉察","成长","通透"],
   quote:"你既想看清世界，也想看清自己。",
   core:"你喜欢理解事情背后的规律，也喜欢理解自己为什么会这样想、这样做。比起「发生了什么」，你更在意「这件事说明了什么」，习惯从每一段经历里，提炼出属于自己的答案。",
@@ -578,9 +935,20 @@ const ARCHETYPES = [
     {h:"容易显得抽离",d:"别人还在情绪里的时候，你已经在分析原因了。"}
   ],
   suitableFor:["教育","研究","写作与思考类工作","心理相关"],
-  rarity:"「智慧觉察型」需要愿意向内看的耐心，这份耐心并不是每个人都愿意花时间去练习。"
+  advice:[
+    "给自己的反思设一个时间上限，避免一直停留在分析里。",
+    "想清楚七成时就先行动一小步，用行动补足剩下的判断。",
+    "主动向亲近的人表达情绪，而不只是分析情绪。"
+  ],
+  oneLiner:"你真正擅长的，不是急着给出结论，而是愿意先弄明白，一件事到底说明了什么。",
+  whyText:"你在做判断之前，习惯先理解对方为什么这么想，也愿意花时间复盘和反思自己。这种「先想清楚再行动」的路径，正是「智慧觉察型」人格的典型行为模式。",
+  ancientRole:{ title:"讲学论道 / 幕后谋断 / 心性修炼者",
+    suited:["讲学论道","幕后参谋","需要深度思考的事务"],
+    unsuited:["高强度即时反应的岗位","不容置疑的纯执行","快节奏无暇思考的环境"]},
+  motto:{ quote:"知人者智，自知者明。", src:"——《道德经》",
+    interpret:"你走得慢一些，但很少走回头路。"}
 },
-{ title:"情感创造型",
+{ title:"情感创造型", sealText:"创感",
   keywords:["敏感","审美","共情","表达"],
   quote:"你对世界的感受，比大多数人更深一层。",
   core:"你对情绪和美的感知力，是你最独特的资产。一段关系里细微的变化、一件事里没说出口的委屈，你往往比别人更早察觉。这种敏感有时候是负担，但更多时候，是你创造力的来源。",
@@ -595,9 +963,20 @@ const ARCHETYPES = [
     {h:"需要被理解的需求较高",d:"没被真正理解时，你会比别人更失落。"}
   ],
   suitableFor:["写作","艺术","内容创作","与人相关的工作"],
-  rarity:"「情感创造型」的感知力是天生的敏锐，也是后天很难被训练出来的部分，因此相对少见。"
+  advice:[
+    "建立一个只属于自己的「情绪卸载」习惯，定期清空。",
+    "练习区分「这是我的感受」和「这是我要背的责任」。",
+    "把敏锐的感知力，用在一件具体的创作或表达上。"
+  ],
+  oneLiner:"你真正擅长的，不是压抑感受去迎合场合，而是把别人说不出口的情绪，转化成能被理解的表达。",
+  whyText:"在涉及情绪和关系的情境里，你的反应往往比其他选项更细腻、更容易被触动。这种对感受的敏锐捕捉，是「情感创造型」人格最直接的证据。",
+  ancientRole:{ title:"诗词书画 / 乐舞创作 / 情感表达者",
+    suited:["诗词书画","情感与审美相关事务","需要共情力的场合"],
+    unsuited:["高压竞争环境","长期压抑情绪的岗位","需要冷酷决断的场合"]},
+  motto:{ quote:"此情可待成追忆，只是当时已惘然。", src:"——李商隐《锦瑟》",
+    interpret:"你记得的，比大多数人以为你会记得的更多。"}
 },
-{ title:"独立破局型",
+{ title:"独立破局型", sealText:"独行",
   keywords:["独立","勇气","行动","不被定义"],
   quote:"面对既定的规则，你更倾向于自己走出一条路。",
   core:"你不太喜欢被现成的身份定义。当环境要求你按照某种既定的方式生活时，你的第一反应常常是「有没有别的可能」，然后自己去把那条路走出来。",
@@ -612,65 +991,68 @@ const ARCHETYPES = [
     {h:"容易在关系里消耗",d:"长期扮演「最能扛」的那个人，会让你更累。"}
   ],
   suitableFor:["创业","自由职业","需要独立决策的岗位"],
-  rarity:"「独立破局型」意味着愿意为自己的判断独自承担后果，这份笃定并不常见。"
+  advice:[
+    "练习在重要的事上，主动邀请别人参与而不是独自完成。",
+    "把「我可以自己扛」换成「我可以选择要不要自己扛」。",
+    "找一个可以完全放下防备的人或场合，练习依赖。"
+  ],
+  oneLiner:"你真正擅长的，不是等待别人给你铺路，而是在没有路的地方，自己走出一条来。",
+  whyText:"面对被安排、被定义的情境，你更多次选择了自己走出一条路，而不是顺着已有的规则往前走。这种反复出现的独立倾向，是「独立破局型」人格最清晰的信号。",
+  ancientRole:{ title:"游侠 / 独立将领 / 自立门户者",
+    suited:["独立决策的岗位","开创自己的事业","不依附于人的专业路线"],
+    unsuited:["层级森严的体制","长期依附他人的位置","不允许自己做主的环境"]},
+  motto:{ quote:"谁怕？一蓑烟雨任平生。", src:"——苏轼《定风波》",
+    interpret:"你不需要所有人都理解你的选择，只需要自己心里有数。"}
 }
 ];
 
 /* =========================================================================
-   四、48位历史人物数据库
-   dims: [开放性, 责任心, 外向影响力, 情绪敏感度, 自主独立性]
+   48位历史人物数据库
+   dims: [灵性通达, 定力持重, 锋芒外显, 情思幽微, 孤高独往]
    ========================================================================= */
 const PERSONS = [
- // 0 战略谋局型
  {name:"诸葛亮", tag:"蜀汉·丞相", arche:0, dims:[1,3,0,0,1]},
  {name:"张良",   tag:"汉初·谋圣", arche:0, dims:[1,1,0,1,2]},
  {name:"司马懿", tag:"曹魏·权臣", arche:0, dims:[0,3,0,0,2]},
  {name:"范蠡",   tag:"春秋·商圣", arche:0, dims:[2,1,1,0,2]},
  {name:"郭嘉",   tag:"曹魏·军师", arche:0, dims:[3,0,1,1,1]},
  {name:"管仲",   tag:"春秋·相国", arche:0, dims:[1,3,1,0,0]},
- // 1 领袖掌控型
  {name:"曹操",   tag:"东汉·魏王", arche:1, dims:[1,2,3,0,1]},
  {name:"秦始皇", tag:"秦代·始皇帝", arche:1, dims:[0,3,2,0,1]},
  {name:"唐太宗", tag:"唐代·帝王", arche:1, dims:[1,2,3,0,0]},
  {name:"汉武帝", tag:"西汉·帝王", arche:1, dims:[1,1,3,0,1]},
  {name:"武则天", tag:"唐代·女帝", arche:1, dims:[1,2,2,0,3]},
  {name:"刘邦",   tag:"西汉·开国帝王", arche:1, dims:[1,1,3,1,1]},
- // 2 逆境破局型
  {name:"韩信",   tag:"西汉·兵仙", arche:2, dims:[1,2,1,0,2]},
  {name:"勾践",   tag:"春秋·越王", arche:2, dims:[0,3,0,1,2]},
  {name:"苏秦",   tag:"战国·纵横家", arche:2, dims:[1,1,3,0,1]},
  {name:"陈平",   tag:"西汉·丞相", arche:2, dims:[2,1,2,0,1]},
  {name:"朱元璋", tag:"明代·开国帝王", arche:2, dims:[0,2,2,0,3]},
  {name:"苏武",   tag:"西汉·使者", arche:2, dims:[0,3,0,1,1]},
- // 3 理想自由型
  {name:"李白",   tag:"唐代·诗仙", arche:3, dims:[3,0,2,2,2]},
  {name:"陶渊明", tag:"东晋·隐士", arche:3, dims:[2,1,0,1,3]},
  {name:"庄子",   tag:"战国·哲人", arche:3, dims:[3,0,0,1,3]},
  {name:"徐霞客", tag:"明代·行者", arche:3, dims:[3,1,1,0,2]},
  {name:"嵇康",   tag:"魏晋·名士", arche:3, dims:[2,1,0,1,3]},
  {name:"李贽",   tag:"明代·思想家", arche:3, dims:[2,1,1,1,3]},
- // 4 信念担当型
  {name:"岳飞",   tag:"南宋·名将", arche:4, dims:[0,3,1,1,1]},
  {name:"文天祥", tag:"南宋·丞相", arche:4, dims:[0,3,0,2,2]},
  {name:"曾国藩", tag:"清代·重臣", arche:4, dims:[1,3,1,0,1]},
  {name:"司马光", tag:"北宋·史官", arche:4, dims:[0,3,0,1,1]},
  {name:"海瑞",   tag:"明代·清官", arche:4, dims:[0,3,0,1,2]},
  {name:"林则徐", tag:"清代·钦差", arche:4, dims:[1,3,1,1,1]},
- // 5 智慧觉察型
  {name:"王阳明", tag:"明代·心学宗师", arche:5, dims:[2,2,0,1,2]},
  {name:"孔子",   tag:"春秋·圣人", arche:5, dims:[1,2,1,1,1]},
  {name:"老子",   tag:"春秋·哲人", arche:5, dims:[2,1,0,1,2]},
  {name:"苏轼",   tag:"北宋·文豪", arche:5, dims:[2,1,1,2,2]},
  {name:"朱熹",   tag:"南宋·理学家", arche:5, dims:[1,3,0,0,1]},
  {name:"陆游",   tag:"南宋·诗人", arche:5, dims:[1,1,0,2,2]},
- // 6 情感创造型
  {name:"李清照", tag:"宋代·词人", arche:6, dims:[1,0,0,3,2]},
  {name:"杜甫",   tag:"唐代·诗圣", arche:6, dims:[1,1,0,3,1]},
  {name:"白居易", tag:"唐代·诗人", arche:6, dims:[1,1,1,2,1]},
  {name:"唐伯虎", tag:"明代·才子", arche:6, dims:[2,0,1,2,2]},
  {name:"曹雪芹", tag:"清代·文学家", arche:6, dims:[2,1,0,3,1]},
  {name:"蔡文姬", tag:"东汉·才女", arche:6, dims:[1,1,0,3,1]},
- // 7 独立破局型
  {name:"花木兰", tag:"北朝·女将", arche:7, dims:[0,2,1,1,3]},
  {name:"秋瑾",   tag:"清末·革命者", arche:7, dims:[1,1,2,1,3]},
  {name:"梁红玉", tag:"南宋·女将", arche:7, dims:[0,2,2,1,2]},
@@ -679,16 +1061,18 @@ const PERSONS = [
  {name:"上官婉儿", tag:"唐代·女官", arche:7, dims:[1,1,2,1,2]}
 ];
 
-const DIM_NAMES = ["开放创造","统筹掌控","行动进取","共情敏感","自主独立"];
+const DIM_NAMES = ["灵性通达","定力持重","锋芒外显","情思幽微","孤高独往"];
+const DIM_DESC  = ["同样敢想敢创造","同样习惯稳住全局","同样敢于主动出手","同样感受细腻","同样不轻易被定义"];
+const CN_NUM = ["一","二","三","四","五","六","七","八","九","十","十一","十二","十三","十四","十五","十六","十七","十八","十九","二十"];
 
 /* =========================================================================
-   五、状态与流程控制
+   状态与流程
    ========================================================================= */
 let currentIndex = 0;
-let answers = new Array(QUESTIONS.length).fill(null); // {arche, dim}
+let answers = new Array(QUESTIONS.length).fill(null);
 
-function showScreen(id){
-  document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
+function showStage(id){
+  document.querySelectorAll(".stage").forEach(s=>s.classList.remove("active"));
   document.getElementById(id).classList.add("active");
   window.scrollTo(0,0);
 }
@@ -700,70 +1084,62 @@ function openAuth(){
   document.getElementById("auth-input").value = "";
   document.getElementById("auth-input").focus();
 }
-function closeAuth(){
-  document.getElementById("auth-overlay").classList.remove("active");
-}
+function closeAuth(){ document.getElementById("auth-overlay").classList.remove("active"); }
 function verifyCode(){
   const raw = document.getElementById("auth-input").value.trim().toUpperCase();
   const ok = VALID_CODES.some(c => c.toUpperCase() === raw);
   if(ok){
-    try{ localStorage.setItem("historia_unlocked","1"); }catch(e){}
+    try{ localStorage.setItem("tange_unlocked","1"); }catch(e){}
     closeAuth();
     restartTest();
   }else{
     document.getElementById("auth-error").style.display = "block";
   }
 }
-// 如果之前已经验证过（同一浏览器），直接跳过授权
 function tryAutoUnlock(){
-  try{
-    if(localStorage.getItem("historia_unlocked") === "1"){
-      return true;
-    }
-  }catch(e){}
-  return false;
+  try{ return localStorage.getItem("tange_unlocked") === "1"; }catch(e){ return false; }
 }
-// 重写"开始探索"按钮逻辑：已解锁则直接进入测试
-document.addEventListener("DOMContentLoaded", ()=>{
-  const coverBtn = document.querySelector('#screen-cover .btn-dark');
-  coverBtn.setAttribute("onclick","handleStartClick()");
-});
 function handleStartClick(){
-  if(tryAutoUnlock()){
-    restartTest();
-  }else{
-    openAuth();
-  }
+  if(tryAutoUnlock()){ restartTest(); } else { openAuth(); }
 }
 
 /* ---- 测试流程 ---- */
 function restartTest(){
   currentIndex = 0;
   answers = new Array(QUESTIONS.length).fill(null);
-  showScreen("screen-quiz");
+  showStage("stage-quiz");
   renderQuestion();
 }
 function renderQuestion(){
   const total = QUESTIONS.length;
   const q = QUESTIONS[currentIndex];
-  document.getElementById("q-index").textContent =
-    String(currentIndex+1).padStart(2,"0") + " / " + total;
-  document.getElementById("q-progress-fill").style.width =
-    (((currentIndex+1)/total)*100) + "%";
+  document.getElementById("q-chapter").textContent = "第" + CN_NUM[currentIndex] + "境";
+  document.getElementById("q-of").textContent = "共二十境";
+  document.getElementById("q-bg").textContent = q.bg;
   document.getElementById("q-text").textContent = q.text;
+  document.getElementById("q-proverb").textContent = PROVERBS[currentIndex % PROVERBS.length];
+
+  const dotWrap = document.getElementById("dot-track");
+  dotWrap.innerHTML = "";
+  for(let i=0;i<total;i++){
+    const d = document.createElement("span");
+    d.className = "dot" + (answers[i] ? " filled":"") + (i===currentIndex ? " current":"");
+    dotWrap.appendChild(d);
+  }
 
   const wrap = document.getElementById("q-options");
   wrap.innerHTML = "";
-  const letters = ["A","B","C","D"];
+  const marks = ["甲","乙","丙","丁"];
   q.options.forEach((opt,i)=>{
     const btn = document.createElement("button");
-    btn.className = "q-option";
-    btn.innerHTML = `<span class="opt-label">${letters[i]}.</span><span>${opt.t}</span>`;
+    btn.className = "q-strip";
+    btn.innerHTML = `<span class="opt-mark">${marks[i]}</span><span>${opt.t}</span>`;
     btn.onclick = ()=>selectOption(opt);
     wrap.appendChild(btn);
   });
 
   document.getElementById("btn-prev").disabled = currentIndex === 0;
+  document.getElementById("btn-prev").style.opacity = currentIndex === 0 ? .35 : 1;
 }
 function selectOption(opt){
   answers[currentIndex] = {arche: opt.arche, dim: opt.dim};
@@ -775,14 +1151,9 @@ function selectOption(opt){
   }
 }
 function prevQuestion(){
-  if(currentIndex > 0){
-    currentIndex--;
-    renderQuestion();
-  }
+  if(currentIndex > 0){ currentIndex--; renderQuestion(); }
 }
-function goHome(){
-  showScreen("screen-cover");
-}
+function goHome(){ showStage("stage-cover"); }
 
 /* ---- 计分与匹配 ---- */
 function computeAndShowResult(){
@@ -790,34 +1161,40 @@ function computeAndShowResult(){
   const dimScores = new Array(DIM_NAMES.length).fill(0);
   const dimMax = new Array(DIM_NAMES.length).fill(0);
 
-  QUESTIONS.forEach((q,idx)=>{
-    q.options.forEach(opt=>{ dimMax[opt.dim] += 0; }); // 占位，真正 max 用下方统计
-  });
-  // 统计每个维度在题库中最多可能出现的次数（每题最多贡献1次）
   QUESTIONS.forEach(q=>{
     const dimsInQuestion = new Set(q.options.map(o=>o.dim));
     dimsInQuestion.forEach(d=> dimMax[d] += 1 );
   });
-
   answers.forEach(a=>{
     if(!a) return;
     archeScores[a.arche] += 1;
     dimScores[a.dim] += 1;
   });
 
-  // 找出主人格与第二人格
-  const sortedArche = archeScores
-    .map((score,i)=>({i,score}))
-    .sort((a,b)=>b.score-a.score);
+  const sortedArche = archeScores.map((score,i)=>({i,score})).sort((a,b)=>b.score-a.score);
   const topArcheIdx = sortedArche[0].i;
   const secondArcheIdx = sortedArche[1].i;
 
   const topPerson = pickPersonInArchetype(topArcheIdx, dimScores);
   const secondPerson = pickPersonInArchetype(secondArcheIdx, dimScores);
 
-  renderResult(topArcheIdx, topPerson, secondArcheIdx, secondPerson, dimScores, dimMax);
+  // 同频图谱 TOP5：主人格固定第一位，其余按与用户五维取舍的点积相似度排序
+  function dotScore(p){ let s=0; for(let d=0; d<dimScores.length; d++){ s += p.dims[d]*dimScores[d]; } return s; }
+  const topScore = Math.max(dotScore(topPerson), 1);
+  const others = PERSONS.filter(p=>p.name!==topPerson.name)
+    .map(p=>({p, s:dotScore(p)}))
+    .sort((a,b)=>b.s-a.s)
+    .slice(0,4)
+    .map(x=>{
+      let pct = Math.round((x.s/topScore)*95);
+      pct = Math.max(38, Math.min(94, pct));
+      return {p:x.p, pct};
+    });
+  const top5 = [{p:topPerson, pct:96}, ...others];
+
+  renderResult(topArcheIdx, topPerson, secondArcheIdx, secondPerson, dimScores, dimMax, top5);
   saveHistory(topPerson.name);
-  showScreen("screen-result");
+  showStage("stage-result");
 }
 function pickPersonInArchetype(archeIdx, dimScores){
   const candidates = PERSONS.filter(p=>p.arche===archeIdx);
@@ -830,79 +1207,176 @@ function pickPersonInArchetype(archeIdx, dimScores){
   return best;
 }
 
+/* ---- 五维雷达图（纯 SVG 生成，无外部依赖） ---- */
+function buildRadarSVG(userPct, refPct, labels){
+  const size = 300, cx = 150, cy = 148, maxR = 96;
+  const n = labels.length;
+  function pt(r, i){
+    const angle = (-90 + i*(360/n)) * Math.PI/180;
+    return [cx + r*Math.cos(angle), cy + r*Math.sin(angle)];
+  }
+  function polygonPoints(vals){
+    return vals.map((v,i)=>{
+      const r = (Math.max(0,Math.min(100,v))/100)*maxR;
+      const [x,y] = pt(r,i);
+      return x.toFixed(1)+","+y.toFixed(1);
+    }).join(" ");
+  }
+  let grid = "";
+  [0.2,0.4,0.6,0.8,1.0].forEach(f=>{
+    const ringPts = labels.map((_,i)=>{ const [x,y]=pt(maxR*f,i); return x.toFixed(1)+","+y.toFixed(1); }).join(" ");
+    grid += `<polygon points="${ringPts}" fill="none" stroke="#c4ac78" stroke-width="1" opacity="${f===1?0.6:0.35}"/>`;
+  });
+  let axes = "";
+  let labelEls = "";
+  labels.forEach((lab,i)=>{
+    const [x,y] = pt(maxR,i);
+    axes += `<line x1="${cx}" y1="${cy}" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}" stroke="#c4ac78" stroke-width="1" opacity=".5"/>`;
+    const [lx,ly] = pt(maxR+22,i);
+    labelEls += `<text x="${lx.toFixed(1)}" y="${ly.toFixed(1)}" font-size="11.5" fill="#5c5240" text-anchor="middle" dominant-baseline="middle" font-family="STKaiti,KaiTi,serif">${lab}</text>`;
+  });
+  const refPoly = `<polygon points="${polygonPoints(refPct)}" fill="none" stroke="#7c8a92" stroke-width="2" stroke-dasharray="4 3" opacity=".85"/>`;
+  const userPoly = `<polygon points="${polygonPoints(userPct)}" fill="#a6362a" fill-opacity=".22" stroke="#a6362a" stroke-width="2.2"/>`;
+  const userDots = userPct.map((v,i)=>{
+    const r=(Math.max(0,Math.min(100,v))/100)*maxR; const [x,y]=pt(r,i);
+    return `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="3" fill="#a6362a"/>`;
+  }).join("");
+
+  return `<svg viewBox="0 0 ${size} ${size}" width="100%" style="max-width:320px;" role="img" aria-label="五维人格雷达图">
+    ${grid}${axes}${refPoly}${userPoly}${userDots}${labelEls}
+  </svg>`;
+}
+
 /* ---- 结果渲染 ---- */
-function renderResult(topArcheIdx, topPerson, secondArcheIdx, secondPerson, dimScores, dimMax){
+function renderResult(topArcheIdx, topPerson, secondArcheIdx, secondPerson, dimScores, dimMax, top5){
   const arche = ARCHETYPES[topArcheIdx];
+  const secondArche = ARCHETYPES[secondArcheIdx];
   const personGlobalIndex = PERSONS.findIndex(p=>p.name===topPerson.name) + 1;
 
-  document.getElementById("res-count").textContent = "No." + String(personGlobalIndex).padStart(2,"0") + " / 48";
+  // ① 历史人格原型
+  document.getElementById("res-count").textContent = "档案 No." + String(personGlobalIndex).padStart(2,"0") + " / 48";
   document.getElementById("res-name").textContent = topPerson.name;
+  document.getElementById("res-seal").textContent = arche.sealText;
   document.getElementById("res-tag").textContent = topPerson.tag + " · " + arche.title;
   document.getElementById("res-quote").textContent = "\u201C" + arche.quote + "\u201D";
-
   const kwWrap = document.getElementById("res-keywords");
   kwWrap.innerHTML = "";
   arche.keywords.forEach(k=>{
-    const s = document.createElement("span");
-    s.className = "pill";
-    s.textContent = k;
-    kwWrap.appendChild(s);
+    const s = document.createElement("span"); s.className = "stamp"; s.textContent = k; kwWrap.appendChild(s);
   });
 
+  // ② 一句话人格总结
+  document.getElementById("res-oneliner").textContent = arche.oneLiner;
+
+  // ③ 为什么你会得到这个结果
+  document.getElementById("res-why").textContent = arche.whyText;
+  const userPct = dimScores.map((v,i)=> Math.round((v/(dimMax[i]||1))*100) );
+  const topDims = userPct.map((v,i)=>({v,i})).sort((a,b)=>b.v-a.v).slice(0,3);
+  const starsWrap = document.getElementById("res-stars");
+  starsWrap.innerHTML = "";
+  topDims.forEach(d=>{
+    const starCount = Math.max(1, Math.min(5, Math.round(d.v/20)));
+    const stars = "★".repeat(starCount) + `<span class="dim">${"★".repeat(5-starCount)}</span>`;
+    const row = document.createElement("div"); row.className = "star-row";
+    row.innerHTML = `<span class="dname">${DIM_NAMES[d.i]}倾向</span><span class="stars">${stars}</span>`;
+    starsWrap.appendChild(row);
+  });
+
+  // ④ 五维人格画像
+  const refPct = topPerson.dims.map(v=> Math.round((v/3)*100) );
+  document.getElementById("radar-holder").innerHTML = buildRadarSVG(userPct, refPct, DIM_NAMES);
+  document.querySelectorAll(".radar-legend span")[1].innerHTML = `<i class="leg-dot ref"></i>${topPerson.name} 参照`;
+
+  // ⑤ 历史映照
   document.getElementById("res-core").textContent = arche.core;
 
-  const dimsWrap = document.getElementById("res-dims");
-  dimsWrap.innerHTML = "";
-  DIM_NAMES.forEach((name,i)=>{
-    const max = dimMax[i] || 1;
-    const pct = Math.round((dimScores[i]/max)*100);
-    const row = document.createElement("div");
-    row.className = "dim-row";
-    row.innerHTML = `<div class="dim-label">${name}</div>
-      <div class="dim-track"><div class="dim-fill" style="width:${pct}%"></div></div>
-      <div class="dim-pct">${pct}%</div>`;
-    dimsWrap.appendChild(row);
-  });
-
+  // ⑥ 核心优势
   const sWrap = document.getElementById("res-strengths");
   sWrap.innerHTML = "";
-  arche.strengths.forEach(item=>{
-    const div = document.createElement("div");
-    div.className = "item";
-    div.innerHTML = `<div class="h">${item.h}</div><div class="d">${item.d}</div>`;
+  arche.strengths.forEach((item,i)=>{
+    const div = document.createElement("div"); div.className = "bamboo-item";
+    div.innerHTML = `<span class="cn">${CN_NUM[i]}</span><div class="body"><div class="h">${item.h}</div><div class="d">${item.d}</div></div>`;
     sWrap.appendChild(div);
   });
 
+  // ⑦ 性格盲区
   const wWrap = document.getElementById("res-weaknesses");
   wWrap.innerHTML = "";
-  arche.weaknesses.forEach(item=>{
-    const div = document.createElement("div");
-    div.className = "item";
-    div.innerHTML = `<div class="h">${item.h}</div><div class="d">${item.d}</div>`;
+  arche.weaknesses.forEach((item,i)=>{
+    const div = document.createElement("div"); div.className = "bamboo-item";
+    div.innerHTML = `<span class="cn">${CN_NUM[i]}</span><div class="body"><div class="h">${item.h}</div><div class="d">${item.d}</div></div>`;
     wWrap.appendChild(div);
   });
 
-  const secondArche = ARCHETYPES[secondArcheIdx];
+  // ⑧ 隐藏人格
+  document.getElementById("res-surface").innerHTML =
+    `你表面上更像 <b>「${arche.title}」</b>，但更深一层，你也带着 <b>「${secondArche.title}」</b> 的底色。`;
   document.getElementById("res-combo").textContent = topPerson.name + " × " + secondPerson.name;
-  document.getElementById("res-combo-text").textContent =
-    `你不仅有「${arche.title}」的一面，也带着「${secondArche.title}」的影子——${secondArche.quote}`;
+  document.getElementById("res-combo-text").textContent = secondArche.quote;
 
-  document.getElementById("res-rarity").textContent = arche.rarity;
+  // ⑨ 历史人物同频图谱 TOP5
+  const top5Wrap = document.getElementById("res-top5");
+  top5Wrap.innerHTML = "";
+  top5.forEach((item,i)=>{
+    const row = document.createElement("div"); row.className = "top5-row";
+    row.innerHTML = `<span class="rank">${i+1}</span>
+      <span class="info"><span class="nm">${item.p.name}</span><span class="tg"> · ${item.p.tag}</span></span>
+      <span class="bar-wrap"><div class="bar-track"><div class="bar-fill" style="width:${item.pct}%"></div></div></span>
+      <span class="pct">${item.pct}%</span>`;
+    top5Wrap.appendChild(row);
+  });
 
+  // ⑩ 如果你生活在古代
+  document.getElementById("res-role-title").textContent = arche.ancientRole.title;
+  const suitedWrap = document.getElementById("res-role-suited"); suitedWrap.innerHTML = "";
+  arche.ancientRole.suited.forEach(t=>{ const li=document.createElement("li"); li.textContent=t; suitedWrap.appendChild(li); });
+  const unsuitedWrap = document.getElementById("res-role-unsuited"); unsuitedWrap.innerHTML = "";
+  arche.ancientRole.unsuited.forEach(t=>{ const li=document.createElement("li"); li.textContent=t; unsuitedWrap.appendChild(li); });
+
+  // ⑪ 现实中的方向与建议
   const tagWrap = document.getElementById("res-suitable");
   tagWrap.innerHTML = "";
-  arche.suitableFor.forEach(t=>{
-    const s = document.createElement("span");
-    s.className = "pill";
-    s.textContent = t;
-    tagWrap.appendChild(s);
+  arche.suitableFor.forEach(t=>{ const s=document.createElement("span"); s.className="pill"; s.textContent=t; tagWrap.appendChild(s); });
+  const advWrap = document.getElementById("res-advice");
+  advWrap.innerHTML = "";
+  arche.advice.forEach(a=>{
+    const div = document.createElement("div"); div.className = "advice-item";
+    div.innerHTML = `<span class="mk">◦</span><span>${a}</span>`;
+    advWrap.appendChild(div);
   });
+
+  // ⑫ 历史人格箴言
+  document.getElementById("res-motto-quote").textContent = "\u201C" + arche.motto.quote + "\u201D";
+  document.getElementById("res-motto-src").textContent = arche.motto.src;
+  document.getElementById("res-motto-interpret").textContent = arche.motto.interpret;
+
+  // 缓存供分享卡使用
+  window.__lastResult = {
+    name:topPerson.name, tag:topPerson.tag+" · "+arche.title,
+    quote:arche.motto.quote, hidden: secondArche.title+"｜"+secondPerson.name,
+    keywords:arche.keywords
+  };
 }
 
-/* ---- 历史记录 ---- */
+/* ---- 分享卡 ---- */
+function openShareCard(){
+  const r = window.__lastResult;
+  if(!r) return;
+  document.getElementById("share-name").textContent = r.name;
+  document.getElementById("share-tag").textContent = r.tag;
+  document.getElementById("share-hidden").textContent = "隐藏人格：" + r.hidden;
+  document.getElementById("share-quote").textContent = "\u201C" + r.quote + "\u201D";
+  const kw = document.getElementById("share-keywords");
+  kw.innerHTML = "";
+  r.keywords.forEach(k=>{ const s=document.createElement("span"); s.className="stamp"; s.textContent=k; kw.appendChild(s); });
+  document.getElementById("share-overlay").classList.add("active");
+}
+function closeShareCard(){ document.getElementById("share-overlay").classList.remove("active"); }
+
+/* ---- 探索存档 ---- */
 function saveHistory(name){
   try{
-    const key = "historia_history";
+    const key = "tange_history";
     const list = JSON.parse(localStorage.getItem(key) || "[]");
     list.unshift({name, date: new Date().toLocaleString("zh-CN")});
     localStorage.setItem(key, JSON.stringify(list.slice(0,20)));
@@ -912,22 +1386,19 @@ function openHistory(){
   const wrap = document.getElementById("history-list");
   wrap.innerHTML = "";
   let list = [];
-  try{ list = JSON.parse(localStorage.getItem("historia_history") || "[]"); }catch(e){}
+  try{ list = JSON.parse(localStorage.getItem("tange_history") || "[]"); }catch(e){}
   if(list.length === 0){
-    wrap.innerHTML = '<div class="history-empty">还没有测试记录</div>';
+    wrap.innerHTML = '<div class="history-empty">尚无探索存档</div>';
   }else{
     list.forEach(item=>{
-      const row = document.createElement("div");
-      row.className = "history-item";
-      row.innerHTML = `<span>${item.name}</span><span style="color:#a89b7f;">${item.date}</span>`;
+      const row = document.createElement("div"); row.className = "history-item";
+      row.innerHTML = `<span>${item.name}</span><span style="color:#8a7c5c;">${item.date}</span>`;
       wrap.appendChild(row);
     });
   }
   document.getElementById("history-overlay").classList.add("active");
 }
-function closeHistory(){
-  document.getElementById("history-overlay").classList.remove("active");
-}
+function closeHistory(){ document.getElementById("history-overlay").classList.remove("active"); }
 </script>
 </body>
 </html>
