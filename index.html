@@ -116,15 +116,47 @@ button:focus-visible, .q-strip:focus-visible, .link-btn:focus-visible{
 @keyframes rodOpenUp{ 0%{ transform:translateY(48px);} 100%{ transform:translateY(0);} }
 @keyframes rodOpenDown{ 0%{ transform:translateY(-48px);} 100%{ transform:translateY(0);} }
 
+.title-group{
+  display:flex; flex-direction:row-reverse; align-items:flex-end; justify-content:center;
+  gap:14px; margin:0 auto 4px;
+}
+.vertical-subtitle{
+  writing-mode:vertical-rl; text-orientation:upright; letter-spacing:.3em;
+  font-size:15px; font-weight:500; text-align:center; color:var(--ink-soft);
+  height:150px; display:flex; align-items:center; justify-content:center; white-space:nowrap;
+}
 .vertical-title{
-  writing-mode:vertical-rl; text-orientation:upright; letter-spacing:.32em;
-  font-size:28px; font-weight:700; margin:0 auto 4px; text-align:center; color:var(--ink);
-  height:230px; display:flex; align-items:center; justify-content:center; white-space:nowrap;
+  writing-mode:vertical-rl; text-orientation:upright; letter-spacing:.26em;
+  font-size:26px; font-weight:700; text-align:center; color:var(--ink);
+  height:250px; display:flex; align-items:center; justify-content:center; white-space:nowrap;
 }
 .cover-eyebrow{ text-align:center; font-size:12px; letter-spacing:.4em; color:var(--seal); margin-bottom:2px; }
-.cover-copy{ text-align:center; font-size:14px; line-height:2; color:var(--ink-soft); margin:18px auto 26px; max-width:380px; }
+.cover-eyebrow-en{
+  text-align:center; font-size:9.5px; letter-spacing:.32em; color:var(--ink-soft);
+  font-family:"Helvetica Neue",Arial,sans-serif; opacity:.62; margin-bottom:18px;
+}
+.cover-headline{
+  text-align:center; font-size:21px; font-weight:700; color:var(--ink);
+  letter-spacing:.06em; margin:6px auto 14px; line-height:1.5;
+}
+.cover-copy{ text-align:center; font-size:14px; line-height:2; color:var(--ink-soft); margin:18px auto 22px; max-width:380px; }
 .cover-copy b{ color:var(--ink); font-weight:600; }
 .cover-cta{ display:flex; flex-direction:column; align-items:center; gap:14px; margin-top:8px; }
+
+.cover-benefits{
+  width:100%; max-width:340px; margin:2px auto 0; padding:14px 18px;
+  background:rgba(255,252,240,.4); border:1px solid var(--paper-line); border-radius:2px;
+}
+.cover-benefits-label{
+  text-align:center; font-size:12px; letter-spacing:.1em; color:var(--ink-soft); margin-bottom:10px;
+}
+.cover-benefits-list{
+  display:grid; grid-template-columns:1fr 1fr; gap:8px 10px; list-style:none; margin:0; padding:0;
+}
+.cover-benefits-list li{
+  font-size:12.5px; letter-spacing:.02em; color:var(--ink); line-height:1.6;
+}
+.cover-benefits-list li::before{ content:"✓ "; color:var(--seal); font-weight:700; }
 
 .strip-note{
   display:flex; gap:14px; margin-top:52px; padding:0 6px; justify-content:center; flex-wrap:wrap;
@@ -365,16 +397,30 @@ button:focus-visible, .q-strip:focus-visible, .link-btn:focus-visible{
   <div class="scroll-wrap">
     <div class="scroll-rod top"></div>
     <div class="scroll-panel">
-      <div class="cover-eyebrow">探 格 · 人 格 溯 源</div>
-      <div class="vertical-title">探格寻史</div>
+      <div class="cover-eyebrow">探格 · 历史人格探索</div>
+      <div class="cover-eyebrow-en">HISTORICAL PERSONALITY TEST</div>
+      <div class="title-group">
+        <div class="vertical-subtitle">寻找你的</div>
+        <div class="vertical-title">历史人物原型</div>
+      </div>
+      <h1 class="cover-headline">你最像哪个历史人物？</h1>
       <p class="cover-copy">
-        非测你是谁，乃<b>探你本相</b>。<br>
+        从性格选择与行为倾向中，<br>
+        发现隐藏的<b>人格底色</b>。<br>
         二十重历史之境，二十次抉择，<br>
-        循着你在关头留下的痕迹，<br>
-        照见那个与你气性相通的<b>历史人格原型</b>。
+        照见那个与你气性相通的<b>历史人物原型</b>。
       </p>
       <div class="cover-cta">
-        <button class="seal-btn" onclick="handleStartClick()">开 启 人 格 探 索</button>
+        <button class="seal-btn" onclick="handleStartClick()">开 启 我 的 历 史 原 型</button>
+        <div class="cover-benefits">
+          <div class="cover-benefits-label">完成探索后，你将获得</div>
+          <ul class="cover-benefits-list">
+            <li>历史人物人格原型</li>
+            <li>性格维度分析</li>
+            <li>隐藏人格倾向</li>
+            <li>同频人物推荐</li>
+          </ul>
+        </div>
         <button class="link-btn" onclick="openHistory()">查看探索存档</button>
       </div>
     </div>
@@ -382,8 +428,8 @@ button:focus-visible, .q-strip:focus-visible, .link-btn:focus-visible{
   </div>
 
   <div class="strip-note" role="note">
-    <div class="strip"><span class="num">其一</span>　境非终点，境中的取舍才是入口。</div>
-    <div class="strip"><span class="num">其二</span>　人格不是标签，是被时代与代价淬炼出的路径。</div>
+    <div class="strip"><span class="num">其一</span>　非简单定义你是谁，而是照见你的性格底色。</div>
+    <div class="strip"><span class="num">其二</span>　通过历史人物的选择轨迹，探索你的性格倾向与内在力量。</div>
     <div class="strip"><span class="num">其三</span>　最终照见的，不只是你像谁，更是你身上那股力量的方向。</div>
   </div>
 </main>
@@ -580,7 +626,7 @@ button:focus-visible, .q-strip:focus-visible, .link-btn:focus-visible{
 /* =========================================================================
    授权码配置——把发放给买家的授权码填在这里
    ========================================================================= */
-const VALID_CODES = ["TANGE2026","HAIHUI888","TEST0001","TEST0002"];
+const VALID_CODES = ["A8K2M9","B3X7Q1","C5T4N8","D9W2R6"];
 
 /* =========================================================================
    历史箴言（公共领域经典语录，按题序轮播）
