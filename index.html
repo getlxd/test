@@ -218,8 +218,13 @@ button:focus-visible, .q-strip:focus-visible, .link-btn:focus-visible{
 .dossier-eyebrow{ font-size:12px; letter-spacing:.35em; color:var(--seal); margin-bottom:4px; }
 .dossier-no{ font-size:11px; color:var(--ink-soft); letter-spacing:.1em; }
 
-.name-seal-row{ display:flex; align-items:center; justify-content:center; gap:16px; margin:20px 0 6px; }
+.name-seal-row{ display:flex; align-items:center; justify-content:center; gap:12px; margin:20px 0 6px; flex-wrap:wrap; }
 .name-seal-row .name{ font-size:36px; font-weight:700; }
+.res-match{
+  font-size:12.5px; color:var(--seal); font-weight:600; letter-spacing:.04em;
+  background:rgba(166,54,42,.08); border:1px solid rgba(166,54,42,.35);
+  border-radius:12px; padding:3px 11px; white-space:nowrap; align-self:center;
+}
 .ink-seal{
   width:56px; height:56px; flex-shrink:0; background:var(--seal); color:#f8e9d8;
   display:flex; align-items:center; justify-content:center; border-radius:3px;
@@ -293,13 +298,8 @@ button:focus-visible, .q-strip:focus-visible, .link-btn:focus-visible{
 }
 .oneliner-box p{ margin:0; font-size:16.5px; line-height:1.85; font-weight:700; color:var(--ink); }
 
-/* 为什么是你 · 证据 */
-.why-text{ font-size:14px; line-height:1.95; color:#453f31; margin-bottom:16px; }
-.star-rows{ display:flex; flex-direction:column; gap:10px; }
-.star-row{ display:flex; align-items:center; justify-content:space-between; font-size:13.5px; }
-.star-row .dname{ color:var(--ink-soft); }
-.star-row .stars{ color:var(--seal); letter-spacing:2px; font-size:15px; }
-.star-row .stars .dim{ color:var(--paper-line); }
+/* 人物概况 */
+.why-text{ font-size:14px; line-height:1.95; color:#453f31; margin-bottom:4px; }
 
 /* 隐藏人格 · 表里句式 */
 .surface-line{ font-size:13.5px; color:var(--ink-soft); margin-bottom:10px; line-height:1.85; }
@@ -469,11 +469,12 @@ button:focus-visible, .q-strip:focus-visible, .link-btn:focus-visible{
 
     <!-- ① 历史人格原型 -->
     <div class="dossier-head">
-      <div class="dossier-eyebrow">历 史 人 格 档 案</div>
+      <div class="dossier-eyebrow">你 的 历 史 人 物 原 型</div>
       <div class="dossier-no" id="res-count">档案 No.— / 48</div>
     </div>
     <div class="name-seal-row">
       <div class="name" id="res-name">—</div>
+      <div class="res-match" id="res-match">相似度 —</div>
       <div class="ink-seal" id="res-seal">—</div>
     </div>
     <div class="res-tagline" id="res-tag">—</div>
@@ -483,11 +484,10 @@ button:focus-visible, .q-strip:focus-visible, .link-btn:focus-visible{
     <!-- ② 一句话人格总结 -->
     <div class="oneliner-box"><p id="res-oneliner"></p></div>
 
-    <!-- ③ 为什么你会得到这个结果 -->
+    <!-- ③ 人物概况 -->
     <div class="section">
-      <div class="section-h"><span class="glyph">◆</span>为什么你会得到这个结果<span class="rule"></span></div>
+      <div class="section-h"><span class="glyph">◆</span>人物概况<span class="rule"></span></div>
       <div class="why-text" id="res-why"></div>
-      <div class="star-rows" id="res-stars"></div>
     </div>
 
     <!-- ④ 五维人格画像 -->
@@ -1057,54 +1057,54 @@ const ARCHETYPES = [
    dims: [决断力, 执行力, 影响力, 共情力, 情绪稳定性]（0-100，源自48人物人格数据库 v3 校准版）
    ========================================================================= */
 const PERSONS = [
- {name:"诸葛亮", tag:"蜀汉·丞相", arche:0, dims:[92,88,82,78,90]},
- {name:"张良", tag:"汉初·谋圣", arche:0, dims:[88,72,80,82,92]},
- {name:"司马懿", tag:"曹魏·权臣", arche:0, dims:[94,82,93,55,96]},
- {name:"范蠡", tag:"春秋·商圣", arche:0, dims:[90,86,78,70,94]},
- {name:"郭嘉", tag:"曹魏·军师", arche:0, dims:[96,78,84,62,82]},
- {name:"管仲", tag:"春秋·相国", arche:0, dims:[86,92,90,82,91]},
- {name:"曹操", tag:"东汉·魏王", arche:1, dims:[96,94,98,58,86]},
- {name:"秦始皇", tag:"秦代·始皇帝", arche:1, dims:[98,98,100,42,82]},
- {name:"唐太宗", tag:"唐代·帝王", arche:1, dims:[91,94,96,84,92]},
- {name:"汉武帝", tag:"西汉·帝王", arche:1, dims:[96,97,98,62,80]},
- {name:"武则天", tag:"唐代·女帝", arche:1, dims:[98,96,99,68,91]},
- {name:"刘邦", tag:"西汉·开国帝王", arche:1, dims:[90,89,99,88,84]},
- {name:"韩信", tag:"西汉·兵仙", arche:2, dims:[94,97,91,62,84]},
- {name:"勾践", tag:"春秋·越王", arche:2, dims:[92,96,91,55,95]},
- {name:"苏秦", tag:"战国·纵横家", arche:2, dims:[90,78,96,82,74]},
- {name:"陈平", tag:"西汉·丞相", arche:2, dims:[91,80,88,72,87]},
- {name:"朱元璋", tag:"明代·开国帝王", arche:2, dims:[97,98,99,55,78]},
- {name:"苏武", tag:"西汉·使者", arche:2, dims:[88,90,76,84,98]},
- {name:"李白", tag:"唐代·诗仙", arche:3, dims:[88,62,92,84,72]},
- {name:"陶渊明", tag:"东晋·隐士", arche:3, dims:[78,72,68,91,93]},
- {name:"庄子", tag:"战国·哲人", arche:3, dims:[76,66,73,88,94]},
- {name:"徐霞客", tag:"明代·行者", arche:3, dims:[82,86,74,79,84]},
- {name:"嵇康", tag:"魏晋·名士", arche:3, dims:[89,64,78,76,76]},
- {name:"李贽", tag:"明代·思想家", arche:3, dims:[94,70,82,74,78]},
- {name:"岳飞", tag:"南宋·名将", arche:4, dims:[94,97,91,88,96]},
- {name:"文天祥", tag:"南宋·丞相", arche:4, dims:[92,91,86,91,99]},
- {name:"曾国藩", tag:"清代·重臣", arche:4, dims:[84,96,91,82,94]},
- {name:"司马光", tag:"北宋·史官", arche:4, dims:[76,91,86,88,96]},
- {name:"海瑞", tag:"明代·清官", arche:4, dims:[93,95,82,89,94]},
- {name:"林则徐", tag:"清代·钦差", arche:4, dims:[90,94,91,85,92]},
- {name:"王阳明", tag:"明代·心学宗师", arche:5, dims:[86,88,88,91,94]},
- {name:"孔子", tag:"春秋·圣人", arche:5, dims:[78,86,94,96,95]},
- {name:"老子", tag:"春秋·哲人", arche:5, dims:[68,62,72,86,97]},
- {name:"苏轼", tag:"北宋·文豪", arche:5, dims:[84,78,91,95,89]},
- {name:"朱熹", tag:"南宋·理学家", arche:5, dims:[82,91,88,90,94]},
- {name:"陆游", tag:"南宋·诗人", arche:5, dims:[86,84,82,93,90]},
- {name:"李清照", tag:"宋代·词人", arche:6, dims:[82,66,86,97,82]},
- {name:"杜甫", tag:"唐代·诗圣", arche:6, dims:[86,82,91,99,92]},
- {name:"白居易", tag:"唐代·诗人", arche:6, dims:[78,82,92,94,90]},
- {name:"唐伯虎", tag:"明代·才子", arche:6, dims:[88,60,86,91,70]},
- {name:"曹雪芹", tag:"清代·文学家", arche:6, dims:[91,74,83,97,80]},
- {name:"蔡文姬", tag:"东汉·才女", arche:6, dims:[84,68,78,96,81]},
- {name:"花木兰", tag:"北朝·女将", arche:7, dims:[92,94,88,75,90]},
- {name:"秋瑾", tag:"清末·革命者", arche:7, dims:[97,95,94,82,86]},
- {name:"梁红玉", tag:"南宋·女将", arche:7, dims:[91,96,89,80,92]},
- {name:"班昭", tag:"东汉·史学家", arche:7, dims:[78,86,84,91,93]},
- {name:"谢道韫", tag:"东晋·才女", arche:7, dims:[86,70,82,92,88]},
- {name:"上官婉儿", tag:"唐代·女官", arche:7, dims:[93,88,96,76,88]}
+ {name:"诸葛亮", tag:"蜀汉·丞相", arche:0, dims:[92,88,82,78,90], kw:"洞察布局/谨慎权衡", summary:"高谋略、高责任、重长期规划；倾向先分析再行动。"},
+ {name:"张良", tag:"汉初·谋圣", arche:0, dims:[88,72,80,82,92], kw:"借势谋局/后发制人", summary:"擅长判断局势与借力，不急于亲自掌控全部执行。"},
+ {name:"司马懿", tag:"曹魏·权臣", arche:0, dims:[94,82,93,55,96], kw:"隐忍蓄势/长期博弈", summary:"耐心极强，重视时机与资源积累，情绪外露较少。"},
+ {name:"范蠡", tag:"春秋·商圣", arche:0, dims:[90,86,78,70,94], kw:"进退有度/顺势而为", summary:"善于判断周期与局势，重视风险控制和及时退出。"},
+ {name:"郭嘉", tag:"曹魏·军师", arche:0, dims:[96,78,84,62,82], kw:"敏锐判断/奇谋破局", summary:"洞察快、判断大胆，偏好非常规方案；稳定性略低于司马懿型。"},
+ {name:"管仲", tag:"春秋·相国", arche:0, dims:[86,92,90,82,91], kw:"制度治理/资源整合", summary:"强执行、强组织，擅长把战略转化为制度和治理。"},
+ {name:"曹操", tag:"东汉·魏王", arche:1, dims:[96,94,98,58,86], kw:"决断掌控/资源整合", summary:"主动性与权力整合能力极强，面对复杂局面倾向亲自定方向。"},
+ {name:"秦始皇", tag:"秦代·始皇帝", arche:1, dims:[98,98,100,42,82], kw:"高度掌控/统一整合", summary:"目标高度集中，执行与制度化能力极强，共情取向相对较低。"},
+ {name:"唐太宗", tag:"唐代·帝王", arche:1, dims:[91,94,96,84,92], kw:"纳谏用人/统御全局", summary:"决断与执行强，同时具备较强的用人、纳谏和协调能力。"},
+ {name:"汉武帝", tag:"西汉·帝王", arche:1, dims:[96,97,98,62,80], kw:"进取扩张/目标驱动", summary:"目标感和行动力强，敢于投入资源实现长期战略。"},
+ {name:"武则天", tag:"唐代·女帝", arche:1, dims:[98,96,99,68,91], kw:"权力经营/危局掌控", summary:"政治判断、控制力和耐心均强，擅长在复杂权力关系中保持主动。"},
+ {name:"刘邦", tag:"西汉·开国帝王", arche:1, dims:[90,89,99,88,84], kw:"识人用人/借势成事", summary:"个人执行未必极致，但影响力、用人和整合资源能力极强。"},
+ {name:"韩信", tag:"西汉·兵仙", arche:2, dims:[94,97,91,62,84], kw:"忍辱蓄势/战局突破", summary:"目标感和执行力极强，善于在劣势中寻找结构性突破。"},
+ {name:"勾践", tag:"春秋·越王", arche:2, dims:[92,96,91,55,95], kw:"忍耐复兴/长期主义", summary:"极强韧性与目标感，能长期承受压力并等待反攻时机。"},
+ {name:"苏秦", tag:"战国·纵横家", arche:2, dims:[90,78,96,82,74], kw:"说服博弈/逆势翻盘", summary:"影响力和表达能力突出，善于把个人处境转化为政治筹码。"},
+ {name:"陈平", tag:"西汉·丞相", arche:2, dims:[91,80,88,72,87], kw:"临机应变/借力解局", summary:"擅长在限制条件下寻找低成本解法，灵活度高。"},
+ {name:"朱元璋", tag:"明代·开国帝王", arche:2, dims:[97,98,99,55,78], kw:"底层崛起/强势重建", summary:"目标与执行极强，逆境适应和资源整合能力突出。"},
+ {name:"苏武", tag:"西汉·使者", arche:2, dims:[88,90,76,84,98], kw:"坚守底线/逆境坚忍", summary:"面对长期压力仍保持原则与稳定，影响力不是主要特征。"},
+ {name:"李白", tag:"唐代·诗仙", arche:3, dims:[88,62,92,84,72], kw:"精神自由/才情表达", summary:"高度重视自我表达与精神自由，行动受兴趣和理想驱动。"},
+ {name:"陶渊明", tag:"东晋·隐士", arche:3, dims:[78,72,68,91,93], kw:"不随流俗/自守本心", summary:"对外部权力兴趣低，更重视内在价值和生活自主权。"},
+ {name:"庄子", tag:"战国·哲人", arche:3, dims:[76,66,73,88,94], kw:"超脱世俗/思想自由", summary:"高度独立，倾向从更高层次重新定义得失与规则。"},
+ {name:"徐霞客", tag:"明代·行者", arche:3, dims:[82,86,74,79,84], kw:"探索世界/亲身求证", summary:"探索欲和行动力突出，重视亲身体验与真实观察。"},
+ {name:"嵇康", tag:"魏晋·名士", arche:3, dims:[89,64,78,76,76], kw:"不拘礼法/人格独立", summary:"强烈自我标准，不轻易向外部规范妥协。"},
+ {name:"李贽", tag:"明代·思想家", arche:3, dims:[94,70,82,74,78], kw:"反传统/独立思辨", summary:"强调独立判断与思想自由，对传统权威具有较强挑战性。"},
+ {name:"岳飞", tag:"南宋·名将", arche:4, dims:[94,97,91,88,96], kw:"忠诚担当/军纪严明", summary:"责任感、目标感和稳定性极强，个人价值服从使命。"},
+ {name:"文天祥", tag:"南宋·丞相", arche:4, dims:[92,91,86,91,99], kw:"气节坚守/舍生取义", summary:"价值原则高度稳定，面对极端压力仍保持一致性。"},
+ {name:"曾国藩", tag:"清代·重臣", arche:4, dims:[84,96,91,82,94], kw:"自律修身/持久担当", summary:"重视长期积累、纪律和自我约束，属于稳健型执行者。"},
+ {name:"司马光", tag:"北宋·史官", arche:4, dims:[76,91,86,88,96], kw:"守正持重/原则治事", summary:"偏好稳定秩序和原则判断，行动谨慎但持续性强。"},
+ {name:"海瑞", tag:"明代·清官", arche:4, dims:[93,95,82,89,94], kw:"刚直守正/不惧得失", summary:"原则感和执行力极强，不轻易因环境压力改变立场。"},
+ {name:"林则徐", tag:"清代·钦差", arche:4, dims:[90,94,91,85,92], kw:"务实担当/危局应对", summary:"既有原则，也强调实际治理和问题解决。"},
+ {name:"王阳明", tag:"明代·心学宗师", arche:5, dims:[86,88,88,91,94], kw:"知行合一/内在觉察", summary:"强调从内在价值出发并落实行动，兼具反思与执行。"},
+ {name:"孔子", tag:"春秋·圣人", arche:5, dims:[78,86,94,96,95], kw:"因材施教/秩序教化", summary:"强影响力和共情式教化能力，重视长期价值与社会秩序。"},
+ {name:"老子", tag:"春秋·哲人", arche:5, dims:[68,62,72,86,97], kw:"顺势而为/克制退让", summary:"低控制、高稳定，倾向以最小干预实现整体平衡。"},
+ {name:"苏轼", tag:"北宋·文豪", arche:5, dims:[84,78,91,95,89], kw:"豁达通透/随遇而安", summary:"共情、表达和适应力突出，能把逆境转化为精神资源。"},
+ {name:"朱熹", tag:"南宋·理学家", arche:5, dims:[82,91,88,90,94], kw:"格物致知/系统求理", summary:"重视系统、秩序和长期学习，执行稳定。"},
+ {name:"陆游", tag:"南宋·诗人", arche:5, dims:[86,84,82,93,90], kw:"家国情怀/执着理想", summary:"理想感、情感与责任并存，长期坚持明显。"},
+ {name:"李清照", tag:"宋代·词人", arche:6, dims:[82,66,86,97,82], kw:"细腻感受/情感表达", summary:"情绪感知和语言创造力突出，对环境与关系变化敏感。"},
+ {name:"杜甫", tag:"唐代·诗圣", arche:6, dims:[86,82,91,99,92], kw:"共情天下/现实担当", summary:"共情与责任感极强，个人体验常与时代、他人命运连接。"},
+ {name:"白居易", tag:"唐代·诗人", arche:6, dims:[78,82,92,94,90], kw:"通俗表达/体察民情", summary:"善于把复杂情感转化为易理解的表达，对社会议题敏感。"},
+ {name:"唐伯虎", tag:"明代·才子", arche:6, dims:[88,60,86,91,70], kw:"才情任性/审美表达", summary:"创造力与表达欲强，规则服从度相对较低。"},
+ {name:"曹雪芹", tag:"清代·文学家", arche:6, dims:[91,74,83,97,80], kw:"深描人性/细察世情", summary:"观察细腻、情感复杂，对人物关系和人性矛盾高度敏感。"},
+ {name:"蔡文姬", tag:"东汉·才女", arche:6, dims:[84,68,78,96,81], kw:"才情敏感/情感韧性", summary:"文化创造力与情感表达突出，同时具有较强的生命韧性。"},
+ {name:"花木兰", tag:"北朝·女将", arche:7, dims:[92,94,88,75,90], kw:"打破角色/担当行动", summary:"面对身份和环境限制，选择主动承担并突破既定角色。"},
+ {name:"秋瑾", tag:"清末·革命者", arche:7, dims:[97,95,94,82,86], kw:"反抗束缚/理想行动", summary:"独立意识和行动力极强，愿意挑战既有规则。"},
+ {name:"梁红玉", tag:"南宋·女将", arche:7, dims:[91,96,89,80,92], kw:"临危担当/战场破局", summary:"行动果断，面对危局主动承担责任。"},
+ {name:"班昭", tag:"东汉·史学家", arche:7, dims:[78,86,84,91,93], kw:"知识独立/持守表达", summary:"兼具知识、表达和长期积累能力，属于温和而坚定的独立型。"},
+ {name:"谢道韫", tag:"东晋·才女", arche:7, dims:[86,70,82,92,88], kw:"才智锋芒/精神独立", summary:"表达、判断与人格独立突出，不以单一社会角色定义自己。"},
+ {name:"上官婉儿", tag:"唐代·女官", arche:7, dims:[93,88,96,76,88], kw:"政治周旋/权力破局", summary:"强政治判断与表达能力，擅长在复杂权力结构中寻找空间。"}
 ];
 
 const DIM_NAMES = ["决断力","执行力","影响力","共情力","情绪稳定性"];
@@ -1299,12 +1299,19 @@ function renderResult(topArcheIdx, topPerson, secondArcheIdx, secondPerson, dimS
   const secondArche = ARCHETYPES[secondArcheIdx];
   const personGlobalIndex = PERSONS.findIndex(p=>p.name===topPerson.name) + 1;
 
+  // 五维取舍换算 + 与匹配人物的相似度（供①③④共用）
+  const userPct = dimScores.map((v,i)=> Math.round((v/(dimMax[i]||1))*100) );
+  const refPct = topPerson.dims.map(v=> Math.round(v) );
+  const avgDiff = refPct.reduce((sum,v,i)=> sum + Math.abs(v - userPct[i]), 0) / refPct.length;
+  const simPct = Math.max(76, Math.min(98, Math.round(100 - avgDiff * 0.45)));
+
   // ① 历史人格原型
   document.getElementById("res-count").textContent = "档案 No." + String(personGlobalIndex).padStart(2,"0") + " / 48";
   document.getElementById("res-name").textContent = topPerson.name;
+  document.getElementById("res-match").textContent = "相似度 " + simPct + "%";
   document.getElementById("res-seal").textContent = arche.sealText;
   document.getElementById("res-tag").textContent = topPerson.tag + " · " + arche.title;
-  document.getElementById("res-quote").textContent = "\u201C" + arche.quote + "\u201D";
+  document.getElementById("res-quote").textContent = "\u201C" + (topPerson.summary || arche.quote) + "\u201D";
   const kwWrap = document.getElementById("res-keywords");
   kwWrap.innerHTML = "";
   arche.keywords.forEach(k=>{
@@ -1314,22 +1321,14 @@ function renderResult(topArcheIdx, topPerson, secondArcheIdx, secondPerson, dimS
   // ② 一句话人格总结
   document.getElementById("res-oneliner").textContent = arche.oneLiner;
 
-  // ③ 为什么你会得到这个结果
-  document.getElementById("res-why").textContent = arche.whyText;
-  const userPct = dimScores.map((v,i)=> Math.round((v/(dimMax[i]||1))*100) );
-  const topDims = userPct.map((v,i)=>({v,i})).sort((a,b)=>b.v-a.v).slice(0,3);
-  const starsWrap = document.getElementById("res-stars");
-  starsWrap.innerHTML = "";
-  topDims.forEach(d=>{
-    const starCount = Math.max(1, Math.min(5, Math.round(d.v/20)));
-    const stars = "★".repeat(starCount) + `<span class="dim">${"★".repeat(5-starCount)}</span>`;
-    const row = document.createElement("div"); row.className = "star-row";
-    row.innerHTML = `<span class="dname">${DIM_NAMES[d.i]}倾向</span><span class="stars">${stars}</span>`;
-    starsWrap.appendChild(row);
-  });
+  // ③ 人物概况（从性格与心理角度描述这位历史人物）
+  const dimRank = topPerson.dims.map((v,i)=>({v,i})).sort((a,b)=>b.v-a.v);
+  const topDimName = DIM_NAMES[dimRank[0].i], secondDimName = DIM_NAMES[dimRank[1].i];
+  const kwText = (topPerson.kw || "").split("/").filter(Boolean).join("、");
+  document.getElementById("res-why").textContent =
+    `${topPerson.summary || arche.core} 从心理驱动上看，TA最鲜明的特质集中在「${topDimName}」与「${secondDimName}」——这也是「${kwText}」这类人格常见的底层逻辑。`;
 
   // ④ 五维人格画像
-  const refPct = topPerson.dims.map(v=> Math.round(v) );
   document.getElementById("radar-holder").innerHTML = buildRadarSVG(userPct, refPct, DIM_NAMES);
   document.querySelectorAll(".radar-legend span")[1].innerHTML = `<i class="leg-dot ref"></i>${topPerson.name} 参照`;
 
